@@ -1,4 +1,29 @@
 
+<?php
+// Load models dynamically if available
+$destinations = [];
+$tours = [];
+
+try {
+    if (file_exists(__DIR__ . '/../cms/models/Destination.php')) {
+        require_once __DIR__ . '/../cms/models/Destination.php';
+        $destinationModel = new Destination();
+        $destinations = $destinationModel->all('name', 'ASC');
+    }
+    
+    if (file_exists(__DIR__ . '/../cms/models/Tour.php')) {
+        require_once __DIR__ . '/../cms/models/Tour.php';
+        $tourModel = new Tour();
+        $searchResult = $tourModel->search([], 1, 4);
+        $tours = $searchResult['data'] ?? [];
+    }
+} catch (Throwable $e) {
+    // Fail-safe graceful fallback if database is not initialized
+    $destinations = [];
+    $tours = [];
+}
+?>
+
 <!-- ================= HERO ================= -->
 <section class="hero">
   <div class="container hero-content">
@@ -17,23 +42,24 @@
 
 <!-- ================= SEARCH BAR ================= -->
 <div class="search-wrap">
-  <form class="search-bar" id="searchForm">
+  <form class="search-bar" id="searchForm" action="index.php" method="GET">
+    <input type="hidden" name="page" value="packages">
     <div class="search-field grow">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-      <div class="sf"><label for="dest">Where to?</label><input id="dest" type="text" placeholder="Search destination"></div>
+      <div class="sf"><label for="dest">Where to?</label><input id="dest" name="keyword" type="text" placeholder="Search destination"></div>
     </div>
     <div class="search-field">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-      <div class="sf"><label for="cin">Check In</label><input id="cin" type="date"></div>
+      <div class="sf"><label for="cin">Check In</label><input id="cin" name="checkin" type="date"></div>
     </div>
     <div class="search-field">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-      <div class="sf"><label for="cout">Check Out</label><input id="cout" type="date"></div>
+      <div class="sf"><label for="cout">Check Out</label><input id="cout" name="checkout" type="date"></div>
     </div>
     <div class="search-field">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
       <div class="sf"><label for="pax">Travelers</label>
-        <select id="pax"><option>1 Traveler</option><option selected>2 Travelers</option><option>3 Travelers</option><option>4+ Travelers</option></select>
+        <select id="pax" name="pax"><option>1 Traveler</option><option selected>2 Travelers</option><option>3 Travelers</option><option>4+ Travelers</option></select>
       </div>
     </div>
     <button class="btn btn-primary" type="submit">Search Now</button>
@@ -51,22 +77,40 @@
     <div class="carousel reveal">
       <button class="car-btn prev" id="carPrev" aria-label="Geser kiri"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg></button>
       <div class="cards-track" id="destTrack">
-        <article class="dest-card" style="background-image:url('assets/images/bromo.jpg')">
-          <div class="shade"></div>
-          <div class="dest-info"><h3>Bromo Tengger</h3><p><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>East Java</p></div>
-        </article>
-        <article class="dest-card" style="background-image:url('assets/images/temple.jpg')">
-          <div class="shade"></div>
-          <div class="dest-info"><h3>Yogyakarta</h3><p><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Central Java</p></div>
-        </article>
-        <article class="dest-card" style="background-image:url('assets/images/hills.jpg')">
-          <div class="shade"></div>
-          <div class="dest-info"><h3>Bandung</h3><p><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>West Java</p></div>
-        </article>
-        <article class="dest-card" style="background-image:url('assets/images/ijen.jpg')">
-          <div class="shade"></div>
-          <div class="dest-info"><h3>Kawah Ijen</h3><p><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>East Java</p></div>
-        </article>
+        <?php if (!empty($destinations)): ?>
+          <?php foreach ($destinations as $dest): ?>
+            <?php 
+              $bgImage = !empty($dest['image_thumbnail']) ? $dest['image_thumbnail'] : 'assets/images/bromo.jpg';
+              if (!str_starts_with($bgImage, 'http') && !str_starts_with($bgImage, 'assets/')) {
+                  $bgImage = 'assets/images/' . ltrim($bgImage, '/');
+              }
+            ?>
+            <article class="dest-card" style="background-image:url('<?= htmlspecialchars($bgImage) ?>')">
+              <div class="shade"></div>
+              <div class="dest-info">
+                <h3><?= htmlspecialchars($dest['name']) ?></h3>
+                <p><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Java</p>
+              </div>
+            </article>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <article class="dest-card" style="background-image:url('assets/images/bromo.jpg')">
+            <div class="shade"></div>
+            <div class="dest-info"><h3>Bromo Tengger</h3><p><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>East Java</p></div>
+          </article>
+          <article class="dest-card" style="background-image:url('assets/images/temple.jpg')">
+            <div class="shade"></div>
+            <div class="dest-info"><h3>Yogyakarta</h3><p><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Central Java</p></div>
+          </article>
+          <article class="dest-card" style="background-image:url('assets/images/hills.jpg')">
+            <div class="shade"></div>
+            <div class="dest-info"><h3>Bandung</h3><p><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>West Java</p></div>
+          </article>
+          <article class="dest-card" style="background-image:url('assets/images/ijen.jpg')">
+            <div class="shade"></div>
+            <div class="dest-info"><h3>Kawah Ijen</h3><p><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>East Java</p></div>
+          </article>
+        <?php endif; ?>
       </div>
       <button class="car-btn next" id="carNext" aria-label="Geser kanan"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10 6 6 6-6 6"/></svg></button>
     </div>
@@ -112,54 +156,75 @@
       <p class="section-sub">From adventure to cultural immersion, find the perfect package that suits your travel style.</p>
     </div>
     <div class="tours-grid">
-      <article class="tour-card reveal">
-        <div class="tour-media" style="background-image:url('assets/images/bromo.jpg')"><span class="badge">3D 2N</span></div>
-        <div class="tour-body">
-          <h3 class="tour-title">Bromo Sunrise Tour</h3>
-          <div class="price-row">
-            <p class="price">from <b>$125</b> /person</p>
-            <p class="rating"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>4.8 <small>(120)</small></p>
+      <?php if (!empty($tours)): ?>
+        <?php foreach ($tours as $tour): ?>
+          <?php
+            $duration = ($tour['duration_days'] ?? 0) . 'D ' . ($tour['duration_nights'] ?? 0) . 'N';
+            $priceFormatted = number_format((float)($tour['price'] ?? 0), 0);
+          ?>
+          <article class="tour-card reveal">
+            <div class="tour-media" style="background-image:url('assets/images/bromo.jpg')"><span class="badge"><?= htmlspecialchars($duration) ?></span></div>
+            <div class="tour-body">
+              <h3 class="tour-title"><?= htmlspecialchars($tour['title']) ?></h3>
+              <div class="price-row">
+                <p class="price">from <b>$<?= htmlspecialchars($priceFormatted) ?></b> /person</p>
+                <p class="rating"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>4.8</p>
+              </div>
+              <p class="tour-places"><?= htmlspecialchars($tour['destination_name'] ?? 'Java') ?></p>
+              <a href="?page=detail&slug=<?= urlencode($tour['slug'] ?? '') ?>" class="tour-link">View Details</a>
+            </div>
+          </article>
+        <?php endforeach; ?>
+      <?php else: ?>
+        <article class="tour-card reveal">
+          <div class="tour-media" style="background-image:url('assets/images/bromo.jpg')"><span class="badge">3D 2N</span></div>
+          <div class="tour-body">
+            <h3 class="tour-title">Bromo Sunrise Tour</h3>
+            <div class="price-row">
+              <p class="price">from <b>$125</b> /person</p>
+              <p class="rating"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>4.8 <small>(120)</small></p>
+            </div>
+            <p class="tour-places">Mount Bromo, Madakaripura Waterfall</p>
+            <a href="?page=detail" class="tour-link">View Details</a>
           </div>
-          <p class="tour-places">Mount Bromo, Madakaripura Waterfall</p>
-          <a href="#" class="tour-link">View Details</a>
-        </div>
-      </article>
-      <article class="tour-card reveal">
-        <div class="tour-media" style="background-image:url('assets/images/temple.jpg')"><span class="badge">4D 3N</span></div>
-        <div class="tour-body">
-          <h3 class="tour-title">Jogja Cultural Escape</h3>
-          <div class="price-row">
-            <p class="price">from <b>$199</b> /person</p>
-            <p class="rating"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>4.9 <small>(86)</small></p>
+        </article>
+        <article class="tour-card reveal">
+          <div class="tour-media" style="background-image:url('assets/images/temple.jpg')"><span class="badge">4D 3N</span></div>
+          <div class="tour-body">
+            <h3 class="tour-title">Jogja Cultural Escape</h3>
+            <div class="price-row">
+              <p class="price">from <b>$199</b> /person</p>
+              <p class="rating"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>4.9 <small>(86)</small></p>
+            </div>
+            <p class="tour-places">Borobudur, Prambanan, Malioboro</p>
+            <a href="?page=detail" class="tour-link">View Details</a>
           </div>
-          <p class="tour-places">Borobudur, Prambanan, Malioboro</p>
-          <a href="#" class="tour-link">View Details</a>
-        </div>
-      </article>
-      <article class="tour-card reveal">
-        <div class="tour-media" style="background-image:url('assets/images/waterfall.jpg')"><span class="badge">5D 4N</span></div>
-        <div class="tour-body">
-          <h3 class="tour-title">Java Overland Adventure</h3>
-          <div class="price-row">
-            <p class="price">from <b>$349</b> /person</p>
-            <p class="rating"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>4.8 <small>(76)</small></p>
+        </article>
+        <article class="tour-card reveal">
+          <div class="tour-media" style="background-image:url('assets/images/waterfall.jpg')"><span class="badge">5D 4N</span></div>
+          <div class="tour-body">
+            <h3 class="tour-title">Java Overland Adventure</h3>
+            <div class="price-row">
+              <p class="price">from <b>$349</b> /person</p>
+              <p class="rating"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>4.8 <small>(76)</small></p>
+            </div>
+            <p class="tour-places">Bromo, Ijen, Baluran, Borobudur</p>
+            <a href="?page=detail" class="tour-link">View Details</a>
           </div>
-          <p class="tour-places">Bromo, Ijen, Baluran, Borobudur</p>
-          <a href="#" class="tour-link">View Details</a>
-        </div>
-      </article>
-      <article class="tour-card reveal">
-        <div class="tour-media" style="background-image:url('assets/images/hills.jpg')"><span class="badge">Customize</span></div>
-        <div class="tour-body">
-          <h3 class="tour-title">Private &amp; Custom Trip</h3>
-          <div class="price-row">
-            <p class="price">Tailor-made just for you</p>
-            <p class="rating"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>5.0 <small>(45)</small></p>
+        </article>
+        <article class="tour-card reveal">
+          <div class="tour-media" style="background-image:url('assets/images/hills.jpg')"><span class="badge">Customize</span></div>
+          <div class="tour-body">
+            <h3 class="tour-title">Private &amp; Custom Trip</h3>
+            <div class="price-row">
+              <p class="price">Tailor-made just for you</p>
+              <p class="rating"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>5.0 <small>(45)</small></p>
+            </div>
+            <p class="tour-places">Flexible itinerary &amp; destinations</p>
+            <a href="?page=detail" class="tour-link">Request a Quote</a>
           </div>
-          <p class="tour-places">Flexible itinerary &amp; destinations</p>
-          <a href="#" class="tour-link">Request a Quote</a>
-        </div>
-      </article>
+        </article>
+      <?php endif; ?>
     </div>
     <div class="center-cta"><a class="btn btn-primary" href="?page=packages">View All Tours</a></div>
   </div>
@@ -220,3 +285,4 @@
 </section>
 
 <script src="assets/js/home.js"></script>
+
