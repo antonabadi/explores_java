@@ -41,7 +41,12 @@ if (str_starts_with($requestPath, $basePath)) {
 
 $segments = array_values(array_filter(explode('/', $path), fn($s) => $s !== ''));
 
-// e.g. /tours/5  -> ['tours', '5']
+// If dispatched via root index.php, strip leading 'cms' or 'api' segment
+if (isset($segments[0]) && in_array($segments[0], ['cms', 'api'], true)) {
+    array_shift($segments);
+}
+
+// e.g. /cms/tours/5 -> ['tours', '5']
 $resource = $segments[0] ?? '';
 $param1 = $segments[1] ?? null;
 $param2 = $segments[2] ?? null;
@@ -72,7 +77,18 @@ $action = null;
 $public = false;
 
 try {
-    switch ($resource) {
+        // ---------------- Root / CMS Dashboard ----------------
+        case '':
+            if (str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'text/html')) {
+                require_once __DIR__ . '/dashboard.php';
+                exit;
+            }
+            $action = function () {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => 'Explores Java API CMS']);
+            };
+            $public = true;
+            break;
 
         // ---------------- Destinations ----------------
         case 'destinations':

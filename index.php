@@ -1,37 +1,65 @@
 <?php
 
-// Simple Router
-$page = $_GET['page'] ?? 'home';
+declare(strict_types=1);
 
-// Start output buffering
+// -------------------------------------------------------------
+// Unified Front Controller & Router
+// -------------------------------------------------------------
+
+// Calculate base path and current request path
+$scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
+$basePath = $scriptDir === '' ? '/' : $scriptDir . '/';
+$requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+if (str_starts_with($requestPath, $basePath)) {
+    $path = '/' . trim(substr($requestPath, strlen($basePath)), '/');
+} else {
+    $path = '/' . trim($requestPath, '/');
+}
+
+$segments = array_values(array_filter(explode('/', $path), fn($s) => $s !== ''));
+$firstSegment = $segments[0] ?? '';
+
+// Check if request is for CMS or API
+if ($firstSegment === 'cms' || $firstSegment === 'api') {
+    // Route request through CMS Router
+    require_once __DIR__ . '/cms/index.php';
+    exit;
+}
+
+// -------------------------------------------------------------
+// Frontend Public Routing
+// -------------------------------------------------------------
+$page = $firstSegment === '' ? 'home' : $firstSegment;
+
 ob_start();
 
-// Basic routing logic
 switch ($page) {
     case 'home':
-        include 'views/home.php';
+        include __DIR__ . '/views/home.php';
         break;
     case 'destinations':
-        include 'views/destinations.php';
+        include __DIR__ . '/views/destinations.php';
         break;
     case 'packages':
-        include 'views/packages.php';
+        include __DIR__ . '/views/packages.php';
         break;
     case 'detail':
-        include 'views/package.detail.php';
+        include __DIR__ . '/views/package.detail.php';
         break;
     case 'admin':
-    case 'cms':
-        header('Location: cms/index.php');
-        break;
+        header('Location: cms');
+        exit;
     default:
-        include 'views/404.php';
+        include __DIR__ . '/views/404.php';
         break;
 }
 
 $content = ob_get_clean();
 
-// Include Main Layout (templates/header + content + footer)
-include 'views/modules/header.php';
+// Render Main Layout (Header + Content + Footer)
+include __DIR__ . '/views/modules/header.php';
 echo $content;
-include 'views/modules/footer.php';
+include __DIR__ . '/views/modules/footer.php';
+
+

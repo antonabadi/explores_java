@@ -1,7 +1,0 @@
-RewriteEngine On
-# Jika meminta file asli (seperti gambar/css admin), jangan di-route
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-
-# Arahkan semua request di dalam /cms/ ke cms/index.php
-RewriteRule ^(.*)$ index.php [QSA,L]
