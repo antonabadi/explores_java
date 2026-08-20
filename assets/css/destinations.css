@@ -1,0 +1,59 @@
+        /* CSS Dasar & Reset */
+        * { margin: 0; padding: 0; box-sizing: border-box; /* font-family: 'Segoe UI', sans-serif; */ }
+        body { color: #333; line-height: 1.6; }
+
+        /* Layout & Utilities */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .flex { display: flex; align-items: center; }
+        .grid { display: grid; gap: 20px; }
+
+        /* Header */
+        header { padding: 20px 0; display: flex; justify-content: space-between; align-items: center; background: white; }
+        .logo { font-weight: bold; font-size: 24px; color: #1a4d2e; }
+        nav a { margin-left: 20px; text-decoration: none; color: #333; font-weight: 500; }
+        .btn-plan { background: #1a4d2e; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; }
+
+        /* Hero Section */
+        .hero {
+            height: 400px; background: #ddd; background-size: cover;
+            display: flex; flex-direction: column; justify-content: center;
+            color: white; text-align: center; margin-bottom: 40px;
+        }
+
+        /* Search Bar */
+        .search-box {
+            background: white; padding: 20px; border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex; gap: 10px; margin-top: -60px;
+        }
+        .search-box input { flex: 1; padding: 10px; border: 1px solid #ddd; }
+        .search-box button { background: #1a4d2e; color: white; padding: 10px 30px; border: none; cursor: pointer; }
+
+        /* Main Content Grid */
+        .main-wrapper { display: grid; grid-template-columns: 250px 1fr; gap: 30px; margin-top: 40px; }
+
+        /* Filters */
+        .filter-section h3 { margin-bottom: 15px; }
+        .filter-group label { display: block; margin-bottom: 8px; }
+        .cta-box { background: #f0f7f4; padding: 20px; border-radius: 10px; margin-top: 20px; }
+
+        /* Cards */
+        .destinations-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
+        .card img { width: 100%; height: 200px; background: #ccc; }
+        .card-body { padding: 15px; }
+        .card h4 { margin: 10px 0; }
+        .card a { color: #1a4d2e; font-weight: bold; text-decoration: none; }
+
+        /* Footer & Features */
+        .features { background: #f9f9f9; padding: 40px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; text-align: center; }
+        .newsletter { background: #1a4d2e; color: white; padding: 40px; text-align: center; }
+        .newsletter input { padding: 10px; width: 300px; border-radius: 5px; border: none; }
+
+        footer { padding: 40px 0; background: #fff; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-wrapper { grid-template-columns: 1fr; }
+            .search-box { flex-direction: column; }
+        }

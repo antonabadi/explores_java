@@ -1,0 +1,54 @@
+ROLE & CONTEXT:
+You are an expert full-stack developer specializing in Point of Sale (POS) systems. Your task is to build a robust, real-time Shopping Cart System for a POS application.
+
+TECH STACK RESTRAINTS:
+- Front-End: HTML5, CSS3, Vanilla JavaScript (ES6+, NO frameworks, NO jQuery).
+- Back-End: Native PHP (Clean procedural or OOP, NO frameworks like Laravel/CodeIgniter).
+- Communication: Asynchronous AJAX using JS Fetch API (JSON format).
+- Database: MySQL / MariaDB.
+
+CORE ARCHITECTURE REQUIREMENTS:
+1. Front-End State Management: Use a Vanilla JS Object/Map as the "Single Source of Truth" for the cart state to ensure O(1) lookups and instant UI rendering without page reloads.
+2. Persistence: Backup the active cart state to browser localStorage to prevent data loss on accidental page refreshes.
+3. Offline-First Approach: Do NOT hit the PHP server or database every time an item is added/modified. Compute all subtotals, discounts, and grand totals instantly via JS. Only send the final payload to PHP during checkout.
+
+DETAILED SPECIFICATIONS & INSTRUCTIONS:
+
+TASK 1: Front-End Cart Data Structure (Vanilla JS)
+- Define a global or scoped object named `posCart = {}`.
+- The key must be the `product_id`.
+- The value must be an object containing: id, name, price, quantity, discount_percentage, discount_nominal, notes, and stock_available.
+- Implement the following core functions:
+  * addToCart(product) -> Checks if ID exists. If yes, increments quantity (validate against stock_available). If no, initializes quantity to 1.
+  * updateQuantity(productId, newQty) -> Updates quantity or removes item if qty drops to 0.
+  * updateItemDiscount(productId, type, value) -> Allows flat rate or percentage discount per line item.
+  * updateItemNotes(productId, string) -> Appends custom instructions (e.g., "no ice").
+  * calculateTotals() -> Loops through `posCart` to compute: Subtotal, Total Line Discounts, Global Tax/Discount, and Grand Total.
+  * renderCartUI() -> Dynamically updates the HTML cart table/list and total summary elements using template literals.
+
+TASK 2: POS Specific Features (Vanilla JS)
+- Hold/Resume Cart: Implement a feature to serialize the current `posCart` into an array of held carts in localStorage, clear the active screen, and allow the user to reload it later using a unique ID or timestamp.
+- Validation: Ensure `quantity` never exceeds `stock_available`. Throw a clean UI toast/alert if exceeded.
+
+TASK 3: HTML/CSS UI Skeleton
+- Create a two-column clean grid layout using CSS Flexbox or Grid.
+- Left Column: Product Grid (Search bar + clickable product cards with data attributes for id, name, price, stock).
+- Right Column: Cart Panel (Scrollable item list, adjustment buttons [+, -, Delete], item discount/note inputs, summary section, and a prominent "Checkout" button).
+
+TASK 4: Back-End Processing & Checkout (Native PHP)
+- Write a standalone PHP script (e.g., `checkout.php`) that accepts a POST request containing a JSON payload (cart items, customer_id, global_discount, payment_received).
+- The PHP script must:
+  * Set header to Content-Type: application/json.
+  * Start a MySQL database transaction (`$conn->begin_transaction()`).
+  * Validate stock availability in the DB one last time before deducting.
+  * Insert a new row into the `orders` table and retrieve the `order_id`.
+  * Loop through the cart items to insert into the `order_items` table.
+  * Update (deduct) product stocks in the `products` table.
+  * Commit the transaction if all steps succeed, or rollback on any failure.
+  * Return a JSON response: `{"success": true, "order_id": X, "message": "..."}` or `{"success": false, "error": "..."}`.
+
+OUTPUT REQUIREMENT:
+- Provide clean, modular, and well-commented code.
+- Separate the code clearly into HTML layout, CSS styling, Vanilla JS logic, and PHP backend processing.
+- Avoid deprecated PHP functions and protect DB inputs against SQL Injection using Prepared Statements.
+- Do not use any external CDNs or libraries except for an icon library (like FontAwesome) if necessary for UI buttons.

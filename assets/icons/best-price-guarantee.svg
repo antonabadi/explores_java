@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="120" height="120">
+  <!-- Bentuk luar: perpaduan lengkungan atas dan badan utama persegi panjang dengan sudut tumpul -->
+  <path d="M 38 32 
+           C 38 20, 42 16, 50 16 
+           C 58 16, 62 20, 62 32 
+           L 75 32 
+           A 8 8 0 0 1 83 40 
+           L 83 72 
+           A 8 8 0 0 1 75 80 
+           L 25 80 
+           A 8 8 0 0 1 17 72 
+           L 17 40 
+           A 8 8 0 0 1 25 32 
+           Z" 
+        fill="none" 
+        stroke="#0c341d" 
+        stroke-width="5" 
+        stroke-linejoin="round" 
+        stroke-linecap="round"/>
+  
+  <!-- Titik/markah kecil di dalam lengkungan atas -->
+  <circle cx="50" cy="25" r="3" fill="#0c341d" />
+  
+  <!-- Karakter teks di bagian dalam: I S I -->
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="24" fill="#0c341d">
+    <text x="26" y="65">I</text>
+    <text x="43" y="65">S</text>
+    <text x="64" y="65">I</text>
+  </g>
+</svg>

@@ -1,0 +1,7 @@
+RewriteEngine On
+# Jika file atau folder asli ada, langsung buka file/folder tersebut
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Jika tidak ada, arahkan semua ke index.php root (halaman publik)
+RewriteRule ^(.*)$ index.php [QSA,L]
