@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/core/Auth.php';
 require_once __DIR__ . '/controllers/DestinationController.php';
 require_once __DIR__ . '/controllers/TourPackageController.php';
-require_once __DIR__ . '/controllers/TourController.php';
 require_once __DIR__ . '/controllers/BookingController.php';
+require_once __DIR__ . '/controllers/TourController.php';
 require_once __DIR__ . '/controllers/TestimonialController.php';
 require_once __DIR__ . '/controllers/AdminController.php';
 
@@ -19,6 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+Auth::startSession();
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Support method override for PUT/PATCH/DELETE from HTML forms: ?_method=PUT
@@ -26,22 +29,22 @@ if ($method === 'POST' && !empty($_POST['_method'])) {
     $method = strtoupper($_POST['_method']);
 }
 
-// Strip query string and base path, split into segments
-$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$basePath = '/cms/'; // change if the app lives in a subdirectory, e.g. '/explores-java/'
-$path = '/' . trim(substr($path, strlen($basePath)), '/');
+$scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
+$basePath = $scriptDir === '' ? '/' : $scriptDir . '/';
+$requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+if (str_starts_with($requestPath, $basePath)) {
+    $path = '/' . trim(substr($requestPath, strlen($basePath)), '/');
+} else {
+    $path = '/' . trim($requestPath, '/');
+}
+
 $segments = array_values(array_filter(explode('/', $path), fn($s) => $s !== ''));
 
 // e.g. /tours/5  -> ['tours', '5']
 $resource = $segments[0] ?? '';
 $param1 = $segments[1] ?? null;
 $param2 = $segments[2] ?? null;
-
-if($path) {
-    // echo $path;
-    echo " ";
-    // exit;
-}
 
 function respondNotFound(): void
 {
@@ -51,6 +54,23 @@ function respondNotFound(): void
     exit;
 }
 
+/**
+ * Public (no session):
+ *   GET  /destinations, /destinations/{id}, /destinations/slug/{slug}
+ *   GET  /packages, /packages/{id}
+ *   GET  /tours, /tours/{id}, /tours/slug/{slug}
+ *   POST /bookings
+ *   GET  /bookings/code/{code}
+ *   GET  /testimonials  (approved list; ?tour_id= allowed)
+ *   POST /testimonials
+ *   POST /admins/login
+ *   POST /admins/logout
+ *
+ * Everything else requires $_SESSION['admin_id'].
+ */
+$action = null;
+$public = false;
+
 try {
     switch ($resource) {
 
@@ -58,19 +78,20 @@ try {
         case 'destinations':
             $controller = new DestinationController();
             if ($param1 === null && $method === 'GET') {
-                $controller->index();
+                $action = fn() => $controller->index();
+                $public = true;
             } elseif ($param1 === 'slug' && $param2 && $method === 'GET') {
-                $controller->showBySlug($param2);
+                $action = fn() => $controller->showBySlug($param2);
+                $public = true;
             } elseif ($param1 && $method === 'GET') {
-                $controller->show((int) $param1);
+                $action = fn() => $controller->show((int) $param1);
+                $public = true;
             } elseif ($param1 === null && $method === 'POST') {
-                $controller->store();
+                $action = fn() => $controller->store();
             } elseif ($param1 && in_array($method, ['PUT', 'PATCH'], true)) {
-                $controller->update((int) $param1);
+                $action = fn() => $controller->update((int) $param1);
             } elseif ($param1 && $method === 'DELETE') {
-                $controller->destroy((int) $param1);
-            } else {
-                respondNotFound();
+                $action = fn() => $controller->destroy((int) $param1);
             }
             break;
 
@@ -78,17 +99,17 @@ try {
         case 'packages':
             $controller = new TourPackageController();
             if ($param1 === null && $method === 'GET') {
-                $controller->index();
+                $action = fn() => $controller->index();
+                $public = true;
             } elseif ($param1 && $method === 'GET') {
-                $controller->show((int) $param1);
+                $action = fn() => $controller->show((int) $param1);
+                $public = true;
             } elseif ($param1 === null && $method === 'POST') {
-                $controller->store();
+                $action = fn() => $controller->store();
             } elseif ($param1 && in_array($method, ['PUT', 'PATCH'], true)) {
-                $controller->update((int) $param1);
+                $action = fn() => $controller->update((int) $param1);
             } elseif ($param1 && $method === 'DELETE') {
-                $controller->destroy((int) $param1);
-            } else {
-                respondNotFound();
+                $action = fn() => $controller->destroy((int) $param1);
             }
             break;
 
@@ -96,23 +117,24 @@ try {
         case 'tours':
             $controller = new TourController();
             if ($param1 === null && $method === 'GET') {
-                $controller->index();
+                $action = fn() => $controller->index();
+                $public = true;
             } elseif ($param1 === 'slug' && $param2 && $method === 'GET') {
-                $controller->showBySlug($param2);
+                $action = fn() => $controller->showBySlug($param2);
+                $public = true;
             } elseif ($param1 === 'images' && $param2 && $method === 'DELETE') {
-                $controller->deleteImage((int) $param2);
+                $action = fn() => $controller->deleteImage((int) $param2);
             } elseif ($param1 && $param2 === 'images' && $method === 'POST') {
-                $controller->addImage((int) $param1);
+                $action = fn() => $controller->addImage((int) $param1);
             } elseif ($param1 && $method === 'GET') {
-                $controller->show((int) $param1);
+                $action = fn() => $controller->show((int) $param1);
+                $public = true;
             } elseif ($param1 === null && $method === 'POST') {
-                $controller->store();
+                $action = fn() => $controller->store();
             } elseif ($param1 && in_array($method, ['PUT', 'PATCH'], true)) {
-                $controller->update((int) $param1);
+                $action = fn() => $controller->update((int) $param1);
             } elseif ($param1 && $method === 'DELETE') {
-                $controller->destroy((int) $param1);
-            } else {
-                respondNotFound();
+                $action = fn() => $controller->destroy((int) $param1);
             }
             break;
 
@@ -120,21 +142,21 @@ try {
         case 'bookings':
             $controller = new BookingController();
             if ($param1 === null && $method === 'GET') {
-                $controller->index();
+                $action = fn() => $controller->index();
             } elseif ($param1 === 'code' && $param2 && $method === 'GET') {
-                $controller->showByCode($param2);
+                $action = fn() => $controller->showByCode($param2);
+                $public = true;
             } elseif ($param1 && $param2 === 'status' && $method === 'PATCH') {
-                $controller->updateStatus((int) $param1);
+                $action = fn() => $controller->updateStatus((int) $param1);
             } elseif ($param1 && $method === 'GET') {
-                $controller->show((int) $param1);
+                $action = fn() => $controller->show((int) $param1);
             } elseif ($param1 === null && $method === 'POST') {
-                $controller->store();
+                $action = fn() => $controller->store();
+                $public = true;
             } elseif ($param1 && in_array($method, ['PUT', 'PATCH'], true)) {
-                $controller->update((int) $param1);
+                $action = fn() => $controller->update((int) $param1);
             } elseif ($param1 && $method === 'DELETE') {
-                $controller->destroy((int) $param1);
-            } else {
-                respondNotFound();
+                $action = fn() => $controller->destroy((int) $param1);
             }
             break;
 
@@ -142,21 +164,21 @@ try {
         case 'testimonials':
             $controller = new TestimonialController();
             if ($param1 === null && $method === 'GET') {
-                $controller->index();
+                $action = fn() => $controller->index();
+                $public = empty($_GET['pending']);
             } elseif ($param1 && $param2 === 'approve' && $method === 'PATCH') {
-                $controller->approve((int) $param1);
+                $action = fn() => $controller->approve((int) $param1);
             } elseif ($param1 && $param2 === 'reject' && $method === 'PATCH') {
-                $controller->reject((int) $param1);
+                $action = fn() => $controller->reject((int) $param1);
             } elseif ($param1 && $method === 'GET') {
-                $controller->show((int) $param1);
+                $action = fn() => $controller->show((int) $param1);
             } elseif ($param1 === null && $method === 'POST') {
-                $controller->store();
+                $action = fn() => $controller->store();
+                $public = true;
             } elseif ($param1 && in_array($method, ['PUT', 'PATCH'], true)) {
-                $controller->update((int) $param1);
+                $action = fn() => $controller->update((int) $param1);
             } elseif ($param1 && $method === 'DELETE') {
-                $controller->destroy((int) $param1);
-            } else {
-                respondNotFound();
+                $action = fn() => $controller->destroy((int) $param1);
             }
             break;
 
@@ -164,27 +186,34 @@ try {
         case 'admins':
             $controller = new AdminController();
             if ($param1 === 'login' && $method === 'POST') {
-                $controller->login();
+                $action = fn() => $controller->login();
+                $public = true;
             } elseif ($param1 === 'logout' && $method === 'POST') {
-                $controller->logout();
+                $action = fn() => $controller->logout();
+                $public = true;
             } elseif ($param1 === null && $method === 'GET') {
-                $controller->index();
+                $action = fn() => $controller->index();
             } elseif ($param1 && $method === 'GET') {
-                $controller->show((int) $param1);
+                $action = fn() => $controller->show((int) $param1);
             } elseif ($param1 === null && $method === 'POST') {
-                $controller->store();
+                $action = fn() => $controller->store();
             } elseif ($param1 && in_array($method, ['PUT', 'PATCH'], true)) {
-                $controller->update((int) $param1);
+                $action = fn() => $controller->update((int) $param1);
             } elseif ($param1 && $method === 'DELETE') {
-                $controller->destroy((int) $param1);
-            } else {
-                respondNotFound();
+                $action = fn() => $controller->destroy((int) $param1);
             }
             break;
-
-        default:
-            respondNotFound();
     }
+
+    if ($action === null) {
+        respondNotFound();
+    }
+
+    if (!$public) {
+        Auth::requireAdmin();
+    }
+
+    $action();
 } catch (Throwable $e) {
     http_response_code(500);
     header('Content-Type: application/json');

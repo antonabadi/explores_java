@@ -1,7 +1,14 @@
 <?php
 
+require_once __DIR__ . '/Auth.php';
+
 abstract class Controller
 {
+    protected function requireAdmin(): void
+    {
+        Auth::requireAdmin();
+    }
+
     protected function jsonResponse(mixed $data, int $statusCode = 200): void
     {
         http_response_code($statusCode);
