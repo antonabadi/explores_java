@@ -5,12 +5,13 @@
     <div class="footer-grid">
       <div class="f-about">
         <a href="#top" class="brand">
-          <svg class="brand-mark" viewBox="0 0 44 36" fill="none" aria-hidden="true">
+          <!--<svg class="brand-mark" viewBox="0 0 44 36" fill="none" aria-hidden="true">
             <circle cx="22" cy="8" r="6" fill="#F2A33C"/>
             <path d="M4 30 L14 14 L20 24 L26 12 L40 30" stroke="#166534" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M8 30 h28" stroke="#166534" stroke-width="2.4" stroke-linecap="round"/>
-          </svg>
-          <span class="brand-text"><span class="brand-name">Explores</span><span class="brand-sub">Java</span></span>
+          </svg>-->
+          <img class="brand-mark" src="/assets/icons/exploresjava.png" alt="Mount Bromo">
+          <!--<span class="brand-text"><span class="brand-name">Explores</span><span class="brand-sub">Java</span></span>-->
         </a>
         <p>Explore beautiful places, rich cultures, and unforgettable experiences across Java Island.</p>
         <div class="socials">
@@ -23,22 +24,22 @@
       <div class="f-col">
         <h5>Quick Links</h5>
         <ul>
-          <li><a href="?page=home">Home</a></li>
-          <li><a href="?page=destinations">Destinations</a></li>
-          <li><a href="?page=packages">Tour Packages</a></li>
-          <li><a href="?page=blog">Blog</a></li>
-          <li><a href="?page=why">About Us</a></li>
-          <li><a href="?page=contact">Contact</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/destinations">Destinations</a></li>
+          <li><a href="/packages">Tour Packages</a></li>
+          <li><a href="/blog">Blog</a></li>
+          <li><a href="/why">About Us</a></li>
+          <li><a href="/contact">Contact</a></li>
         </ul>
       </div>
       <div class="f-col">
         <h5>Destinations</h5>
         <ul>
-          <li><a href="#destinations">East Java</a></li>
-          <li><a href="#destinations">Central Java</a></li>
-          <li><a href="#destinations">West Java</a></li>
-          <li><a href="#destinations">Yogyakarta</a></li>
-          <li><a href="#destinations">Jakarta &amp; Around</a></li>
+          <li><a href="/destinations">East Java</a></li>
+          <li><a href="/destinations">Central Java</a></li>
+          <li><a href="/destinations">West Java</a></li>
+          <li><a href="/destinations">Yogyakarta</a></li>
+          <li><a href="/destinations">Jakarta &amp; Around</a></li>
         </ul>
       </div>
       <div class="f-col">
