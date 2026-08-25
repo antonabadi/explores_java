@@ -41,6 +41,9 @@ switch ($page) {
     case 'blog':
         include __DIR__ . '/views/blog.php';
         break;
+    case 'blog-detail':
+        include __DIR__ . '/views/blog.detail.php';
+        break;
     case 'destinations':
         include __DIR__ . '/views/destinations.php';
         break;

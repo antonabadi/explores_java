@@ -109,7 +109,7 @@ if (empty($blogPosts)) {
         <article class="blog-card reveal">
           <div class="blog-media" style="background-image:url('<?= htmlspecialchars($post['featured_image'] ?? 'assets/images/bromo.jpg') ?>')"></div>
           <div class="blog-body">
-            <h3><?= htmlspecialchars($post['title']) ?></h3>
+            <h3><a href="/blog-detail?slug=<?= htmlspecialchars($post['slug'] ?? '') ?>" style="color:inherit;text-decoration:none;"><?= htmlspecialchars($post['title']) ?></a></h3>
             <p class="blog-meta">
               <?= !empty($post['published_at']) ? date('M j, Y', strtotime($post['published_at'])) : date('M j, Y') ?>
               <span class="dot"></span>
