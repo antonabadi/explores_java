@@ -38,6 +38,9 @@ switch ($page) {
     case 'home':
         include __DIR__ . '/views/home.php';
         break;
+    case 'blog':
+        include __DIR__ . '/views/blog.php';
+        break;
     case 'destinations':
         include __DIR__ . '/views/destinations.php';
         break;
