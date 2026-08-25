@@ -111,6 +111,7 @@ $views = [
     'tours'         => __DIR__ . '/views/tours/index.php',
     'bookings'      => __DIR__ . '/views/bookings/index.php',
     'testimonials'  => __DIR__ . '/views/testimonials/index.php',
+    'blogs'         => __DIR__ . '/views/blogs/index.php',
     'login'         => __DIR__ . '/views/login.php',
 ];
 
@@ -136,6 +137,7 @@ $pageTitles = [
     'tours'        => 'Tours',
     'bookings'     => 'Bookings',
     'testimonials' => 'Testimonials',
+    'blogs'        => 'Blog Posts',
 ];
 
 $pageTitle = $pageTitles[$page] ?? 'Explores Java CMS';

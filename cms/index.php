@@ -219,6 +219,28 @@ try {
                 $action = fn() => $controller->destroy((int) $param1);
             }
             break;
+
+        // ---------------- Blogs ----------------
+        case 'blogs':
+            require_once __DIR__ . '/controllers/BlogController.php';
+            $controller = new BlogController();
+            if ($param1 === null && $method === 'GET') {
+                $action = fn() => $controller->index();
+                $public = true;
+            } elseif ($param1 === 'slug' && $param2 && $method === 'GET') {
+                $action = fn() => $controller->showBySlug($param2);
+                $public = true;
+            } elseif ($param1 && $method === 'GET') {
+                $action = fn() => $controller->show((int) $param1);
+                $public = true;
+            } elseif ($param1 === null && $method === 'POST') {
+                $action = fn() => $controller->store();
+            } elseif ($param1 && in_array($method, ['PUT', 'PATCH'], true)) {
+                $action = fn() => $controller->update((int) $param1);
+            } elseif ($param1 && $method === 'DELETE') {
+                $action = fn() => $controller->destroy((int) $param1);
+            }
+            break;
     }
 
     if ($action === null) {
