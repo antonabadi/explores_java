@@ -3,6 +3,7 @@
 // Load models dynamically if available
 $destinations = [];
 $tours = [];
+$blogPosts = [];
 
 try {
     if (file_exists(__DIR__ . '/../cms/models/Destination.php')) {
@@ -17,10 +18,47 @@ try {
         $searchResult = $tourModel->search([], 1, 4);
         $tours = $searchResult['data'] ?? [];
     }
+
+    if (file_exists(__DIR__ . '/../cms/models/BlogPost.php')) {
+        require_once __DIR__ . '/../cms/models/BlogPost.php';
+        $blogModel = new BlogPost();
+        $blogPosts = $blogModel->getPublished(6);
+    }
 } catch (Throwable $e) {
     // Fail-safe graceful fallback if database is not initialized
     $destinations = [];
     $tours = [];
+    $blogPosts = [];
+}
+
+// Fallback dummy data if no posts found in database
+if (empty($blogPosts)) {
+    $blogPosts = [
+        [
+            'title' => 'Best Time to Visit Mount Bromo and What to Expect',
+            'featured_image' => 'assets/images/bromo.jpg',
+            'published_at' => '2024-05-10',
+            'category_name' => 'Tips',
+        ],
+        [
+            'title' => 'Complete Travel Guide to Yogyakarta',
+            'featured_image' => 'assets/images/temple.jpg',
+            'published_at' => '2024-05-05',
+            'category_name' => 'Guide',
+        ],
+        [
+            'title' => 'Hidden Waterfalls in Java You Must Visit',
+            'featured_image' => 'assets/images/waterfall.jpg',
+            'published_at' => '2024-04-28',
+            'category_name' => 'Nature',
+        ],
+        [
+            'title' => 'Exploring the Tea Plantations of West Java',
+            'featured_image' => 'assets/images/hills.jpg',
+            'published_at' => '2024-04-20',
+            'category_name' => 'Culture',
+        ],
+    ];
 }
 ?>
 
@@ -67,34 +105,19 @@ try {
     <div class="blog-head reveal">
     </div>
     <div class="blog-grid">
-      <article class="blog-card reveal">
-        <div class="blog-media" style="background-image:url('assets/images/bromo.jpg')"></div>
-        <div class="blog-body">
-          <h3>Best Time to Visit Mount Bromo and What to Expect</h3>
-          <p class="blog-meta">May 10, 2024 <span class="dot"></span> Tips</p>
-        </div>
-      </article>
-      <article class="blog-card reveal">
-        <div class="blog-media" style="background-image:url('assets/images/temple.jpg')"></div>
-        <div class="blog-body">
-          <h3>Complete Travel Guide to Yogyakarta</h3>
-          <p class="blog-meta">May 5, 2024 <span class="dot"></span> Guide</p>
-        </div>
-      </article>
-      <article class="blog-card reveal">
-        <div class="blog-media" style="background-image:url('assets/images/waterfall.jpg')"></div>
-        <div class="blog-body">
-          <h3>Hidden Waterfalls in Java You Must Visit</h3>
-          <p class="blog-meta">Apr 28, 2024 <span class="dot"></span> Nature</p>
-        </div>
-      </article>
-      <article class="blog-card reveal">
-        <div class="blog-media" style="background-image:url('assets/images/hills.jpg')"></div>
-        <div class="blog-body">
-          <h3>Exploring the Tea Plantations of West Java</h3>
-          <p class="blog-meta">Apr 20, 2024 <span class="dot"></span> Culture</p>
-        </div>
-      </article>
+      <?php foreach ($blogPosts as $post): ?>
+        <article class="blog-card reveal">
+          <div class="blog-media" style="background-image:url('<?= htmlspecialchars($post['featured_image'] ?? 'assets/images/bromo.jpg') ?>')"></div>
+          <div class="blog-body">
+            <h3><?= htmlspecialchars($post['title']) ?></h3>
+            <p class="blog-meta">
+              <?= !empty($post['published_at']) ? date('M j, Y', strtotime($post['published_at'])) : date('M j, Y') ?>
+              <span class="dot"></span>
+              <?= htmlspecialchars($post['category_name'] ?? 'General') ?>
+            </p>
+          </div>
+        </article>
+      <?php endforeach; ?>
     </div>
   </div>
 </section>
