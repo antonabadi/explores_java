@@ -203,3 +203,11 @@ footer{background:var(--cream);padding:70px 0 26px}
   .footer-grid{grid-template-columns:1fr}
   .header-actions .wa{display:none}
 }
+
+/* ========== PAGINATION ========== */
+.pagination{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:48px}
+.pagination-item{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:38px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:600;transition:.2s}
+.pagination-item:hover{border-color:var(--green-700);color:var(--green-700)}
+.pagination-item.active{background:var(--green-700);color:#fff;border-color:var(--green-700)}
+.pagination-item.disabled{opacity:.4;pointer-events:none}
+

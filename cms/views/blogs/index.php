@@ -2,13 +2,41 @@
 $pdo = db();
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
+// Helper function to handle image upload
+function handleBlogImageUpload($existingImage = null) {
+    if (isset($_FILES['featured_image_file']) && $_FILES['featured_image_file']['error'] === UPLOAD_ERR_OK) {
+        $fileTmpPath = $_FILES['featured_image_file']['tmp_name'];
+        $fileName = $_FILES['featured_image_file']['name'];
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+        if (in_array($fileExtension, $allowedExtensions)) {
+            $uploadFileDir = __DIR__ . '/../../../assets/images/';
+            if (!is_dir($uploadFileDir)) {
+                mkdir($uploadFileDir, 0755, true);
+            }
+
+            $newFileName = 'blog_' . time() . '_' . uniqid() . '.' . $fileExtension;
+            $destPath = $uploadFileDir . $newFileName;
+
+            if (move_uploaded_file($fileTmpPath, $destPath)) {
+                return 'assets/images/' . $newFileName;
+            }
+        }
+    }
+
+    // Jika tidak ada file baru diunggah, gunakan input teks URL atau gambar lama
+    $imageUrl = trim($_POST['featured_image'] ?? '');
+    return $imageUrl !== '' ? $imageUrl : $existingImage;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'create') {
         $title = trim($_POST['title'] ?? '');
         $excerpt = trim($_POST['excerpt'] ?? '');
         $content = trim($_POST['content'] ?? '');
         $status = trim($_POST['status'] ?? 'draft');
-        $image = trim($_POST['featured_image'] ?? '');
+        $image = handleBlogImageUpload();
         $categoryId = !empty($_POST['category_id']) ? (int) $_POST['category_id'] : null;
         $slug = trim($_POST['slug'] ?? '') ?: uniqueSlug($pdo, 'blog_posts', $title);
         $publishedAt = ($status === 'published') ? date('Y-m-d H:i:s') : null;
@@ -31,17 +59,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $excerpt = trim($_POST['excerpt'] ?? '');
         $content = trim($_POST['content'] ?? '');
         $status = trim($_POST['status'] ?? 'draft');
-        $image = trim($_POST['featured_image'] ?? '');
+        
+        $existing = $pdo->prepare('SELECT status, published_at, featured_image FROM blog_posts WHERE id = ?');
+        $existing->execute([$id]);
+        $current = $existing->fetch();
+
+        $image = handleBlogImageUpload($current['featured_image'] ?? null);
         $categoryId = !empty($_POST['category_id']) ? (int) $_POST['category_id'] : null;
         $slug = trim($_POST['slug'] ?? '') ?: uniqueSlug($pdo, 'blog_posts', $title, $id);
 
         if ($title === '' || $content === '') {
             setFlash('danger', 'Title and content are required.');
         } else {
-            $existing = $pdo->prepare('SELECT status, published_at FROM blog_posts WHERE id = ?');
-            $existing->execute([$id]);
-            $current = $existing->fetch();
-            
             $publishedAt = $current['published_at'] ?? null;
             if ($status === 'published' && !$publishedAt) {
                 $publishedAt = date('Y-m-d H:i:s');
@@ -208,58 +237,64 @@ if (isset($_GET['edit'])) {
             <h3 class="modal-title"><?= $editItem ? 'Edit Blog Post' : 'Add Blog Post' ?></h3>
             <button type="button" class="btn-close-modal" data-modal-close>&times;</button>
         </div>
-        <form method="post" id="blogForm">
+        <form method="post" id="blogForm" enctype="multipart/form-data">
             <input type="hidden" name="action" value="<?= $editItem ? 'update' : 'create' ?>">
             <?php if ($editItem): ?>
                 <input type="hidden" name="id" value="<?= (int) $editItem['id'] ?>">
             <?php endif; ?>
-            <div class="form-group">
-                <label for="blog_title">Title *</label>
-                <input type="text" id="blog_title" name="title" class="form-control" required
-                       value="<?= e($editItem['title'] ?? '') ?>">
-            </div>
-            <div class="form-group">
-                <label for="blog_slug">Slug</label>
-                <input type="text" id="blog_slug" name="slug" class="form-control"
-                       placeholder="Auto-generated if empty"
-                       value="<?= e($editItem['slug'] ?? '') ?>">
-            </div>
-            <div class="form-group">
-                <label for="blog_category">Category</label>
-                <select id="blog_category" name="category_id" class="form-control">
-                    <option value="">-- Select Category --</option>
-                    <?php foreach ($categories as $cat): ?>
-                        <option value="<?= (int) $cat['id'] ?>" <?= isset($editItem['category_id']) && (int)$editItem['category_id'] === (int)$cat['id'] ? 'selected' : '' ?>>
-                            <?= e($cat['name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="blog_status">Status</label>
-                <select id="blog_status" name="status" class="form-control">
-                    <option value="draft" <?= ($editItem['status'] ?? '') === 'draft' ? 'selected' : '' ?>>Draft</option>
-                    <option value="published" <?= ($editItem['status'] ?? '') === 'published' ? 'selected' : '' ?>>Published</option>
-                    <option value="archived" <?= ($editItem['status'] ?? '') === 'archived' ? 'selected' : '' ?>>Archived</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="blog_excerpt">Excerpt</label>
-                <textarea id="blog_excerpt" name="excerpt" class="form-control" rows="2"><?= e($editItem['excerpt'] ?? '') ?></textarea>
-            </div>
-            <div class="form-group">
-                <label for="blog_content">Content *</label>
-                <textarea id="blog_content" name="content" class="form-control" rows="6" required><?= e($editItem['content'] ?? '') ?></textarea>
-            </div>
-            <div class="form-group">
-                <label for="blog_image">Featured Image URL</label>
-                <input type="text" id="blog_image" name="featured_image" class="form-control"
-                       placeholder="assets/images/bromo.jpg"
-                       value="<?= e($editItem['featured_image'] ?? '') ?>">
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-secondary" data-modal-close>Cancel</button>
-                <button type="submit" class="btn-submit"><?= $editItem ? 'Update' : 'Create' ?></button>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="blog_title">Title *</label>
+                    <input type="text" id="blog_title" name="title" class="form-control" required
+                           value="<?= e($editItem['title'] ?? '') ?>">
+                </div>
+                <div class="form-group">
+                    <label for="blog_slug">Slug</label>
+                    <input type="text" id="blog_slug" name="slug" class="form-control"
+                           placeholder="Auto-generated if empty"
+                           value="<?= e($editItem['slug'] ?? '') ?>">
+                </div>
+                <div class="form-group">
+                    <label for="blog_category">Category</label>
+                    <select id="blog_category" name="category_id" class="form-control">
+                        <option value="">-- Select Category --</option>
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?= (int) $cat['id'] ?>" <?= isset($editItem['category_id']) && (int)$editItem['category_id'] === (int)$cat['id'] ? 'selected' : '' ?>>
+                                <?= e($cat['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="blog_status">Status</label>
+                    <select id="blog_status" name="status" class="form-control">
+                        <option value="draft" <?= ($editItem['status'] ?? '') === 'draft' ? 'selected' : '' ?>>Draft</option>
+                        <option value="published" <?= ($editItem['status'] ?? '') === 'published' ? 'selected' : '' ?>>Published</option>
+                        <option value="archived" <?= ($editItem['status'] ?? '') === 'archived' ? 'selected' : '' ?>>Archived</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="blog_image_file">Upload Featured Image</label>
+                    <input type="file" id="blog_image_file" name="featured_image_file" class="form-control" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="blog_image">Or Image URL</label>
+                    <input type="text" id="blog_image" name="featured_image" class="form-control"
+                           placeholder="assets/images/bromo.jpg"
+                           value="<?= e($editItem['featured_image'] ?? '') ?>">
+                </div>
+                <div class="form-group full-width">
+                    <label for="blog_excerpt">Excerpt</label>
+                    <textarea id="blog_excerpt" name="excerpt" class="form-control" rows="2"><?= e($editItem['excerpt'] ?? '') ?></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label for="blog_content">Content *</label>
+                    <textarea id="blog_content" name="content" class="form-control" rows="4" required><?= e($editItem['content'] ?? '') ?></textarea>
+                </div>
+                <div class="modal-actions full-width">
+                    <button type="button" class="btn-secondary" data-modal-close>Cancel</button>
+                    <button type="submit" class="btn-submit"><?= $editItem ? 'Update' : 'Create' ?></button>
+                </div>
             </div>
         </form>
     </div>

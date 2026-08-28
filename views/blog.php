@@ -4,6 +4,12 @@
 $destinations = [];
 $tours = [];
 $blogPosts = [];
+$currentPage = isset($_GET['p']) ? (int) $_GET['p'] : 1;
+if ($currentPage < 1) {
+    $currentPage = 1;
+}
+$perPage = 6;
+$totalPages = 1;
 
 try {
     if (file_exists(__DIR__ . '/../cms/models/Destination.php')) {
@@ -22,7 +28,13 @@ try {
     if (file_exists(__DIR__ . '/../cms/models/BlogPost.php')) {
         require_once __DIR__ . '/../cms/models/BlogPost.php';
         $blogModel = new BlogPost();
-        $blogPosts = $blogModel->getPublished(6);
+        if (method_exists($blogModel, 'getPaginatedPublished')) {
+            $paginated = $blogModel->getPaginatedPublished($currentPage, $perPage);
+            $blogPosts = $paginated['data'] ?? [];
+            $totalPages = $paginated['last_page'] ?? 1;
+        } else {
+            $blogPosts = $blogModel->getPublished(6);
+        }
     }
 } catch (Throwable $e) {
     // Fail-safe graceful fallback if database is not initialized
@@ -33,7 +45,7 @@ try {
 
 // Fallback dummy data if no posts found in database
 if (empty($blogPosts)) {
-    $blogPosts = [
+    $allDummy = [
         [
             'title' => 'Best Time to Visit Mount Bromo and What to Expect',
             'featured_image' => 'assets/images/bromo.jpg',
@@ -59,6 +71,11 @@ if (empty($blogPosts)) {
             'category_name' => 'Culture',
         ],
     ];
+
+    $totalDummy = count($allDummy);
+    $totalPages = (int) ceil($totalDummy / $perPage);
+    $offset = ($currentPage - 1) * $perPage;
+    $blogPosts = array_slice($allDummy, $offset, $perPage);
 }
 ?>
 
@@ -119,5 +136,18 @@ if (empty($blogPosts)) {
         </article>
       <?php endforeach; ?>
     </div>
+
+    <!-- ================= PAGINATION ================= -->
+    <?php if ($totalPages > 1): ?>
+      <div class="pagination reveal">
+        <a href="?page=blog&p=<?= max(1, $currentPage - 1) ?>" class="pagination-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">&laquo; Prev</a>
+        
+        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+          <a href="?page=blog&p=<?= $i ?>" class="pagination-item <?= $i === $currentPage ? 'active' : '' ?>"><?= $i ?></a>
+        <?php endfor; ?>
+
+        <a href="?page=blog&p=<?= min($totalPages, $currentPage + 1) ?>" class="pagination-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">Next &raquo;</a>
+      </div>
+    <?php endif; ?>
   </div>
 </section>
