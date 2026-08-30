@@ -1,5 +1,53 @@
 <?php
 $pdo = db();
+
+// Auto-initialize blog tables and seed initial records if not existing/empty
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS blog_categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        slug VARCHAR(100) NOT NULL UNIQUE,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS blog_posts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NOT NULL UNIQUE,
+        content LONGTEXT NOT NULL,
+        excerpt TEXT,
+        featured_image VARCHAR(255),
+        status ENUM('draft', 'published', 'archived') DEFAULT 'draft',
+        author_id INT NULL,
+        category_id INT NULL,
+        view_count INT DEFAULT 0,
+        published_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (category_id) REFERENCES blog_categories(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+    $catCount = (int) $pdo->query("SELECT COUNT(*) FROM blog_categories")->fetchColumn();
+    if ($catCount === 0) {
+        $pdo->exec("INSERT INTO blog_categories (id, name, slug, description) VALUES
+            (1, 'Tips', 'tips', 'Travel tips and advice'),
+            (2, 'Guide', 'guide', 'Destination guides'),
+            (3, 'Nature', 'nature', 'Nature and outdoor adventure'),
+            (4, 'Culture', 'culture', 'Local culture and heritage')");
+    }
+
+    $postCount = (int) $pdo->query("SELECT COUNT(*) FROM blog_posts")->fetchColumn();
+    if ($postCount === 0) {
+        $pdo->exec("INSERT INTO blog_posts (id, title, slug, excerpt, content, status, category_id, featured_image, published_at, created_at) VALUES
+            (1, 'Best Time to Visit Mount Bromo and What to Expect', 'best-time-to-visit-mount-bromo-and-what-to-expect', 'A complete guide on the optimal weather conditions and sunrise spots.', 'Full content about Mount Bromo travel advice.', 'published', 1, 'assets/images/bromo.jpg', '2024-05-10 10:00:00', '2024-05-10 10:00:00'),
+            (2, 'Complete Travel Guide to Yogyakarta', 'complete-travel-guide-to-yogyakarta', 'Discover historical temples, culinary delights, and local arts in Jogja.', 'Full content about Yogyakarta destination overview.', 'published', 2, 'assets/images/temple.jpg', '2024-05-05 14:30:00', '2024-05-05 14:30:00')");
+    }
+} catch (Throwable $e) {
+    // Ignore schema auto-creation errors if table already setup differently
+}
+
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
 // Helper function to handle image upload
@@ -44,11 +92,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($title === '' || $content === '') {
             setFlash('danger', 'Title and content are required.');
         } else {
-            $stmt = $pdo->prepare(
-                'INSERT INTO blog_posts (title, slug, excerpt, content, status, featured_image, category_id, published_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-            );
-            $stmt->execute([$title, $slug, $excerpt ?: null, $content, $status, $image ?: null, $categoryId, $publishedAt]);
-            setFlash('success', 'Blog post created successfully.');
+            try {
+                $stmt = $pdo->prepare(
+                    'INSERT INTO blog_posts (title, slug, excerpt, content, status, featured_image, category_id, published_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+                );
+                $stmt->execute([$title, $slug, $excerpt ?: null, $content, $status, $image ?: null, $categoryId, $publishedAt]);
+                setFlash('success', 'Blog post created successfully.');
+            } catch (Throwable $e) {
+                setFlash('danger', 'Failed to save blog post: ' . $e->getMessage());
+            }
         }
         redirect('dashboard.php?page=blogs');
     }
@@ -60,9 +112,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $content = trim($_POST['content'] ?? '');
         $status = trim($_POST['status'] ?? 'draft');
         
-        $existing = $pdo->prepare('SELECT status, published_at, featured_image FROM blog_posts WHERE id = ?');
-        $existing->execute([$id]);
-        $current = $existing->fetch();
+        $current = null;
+        if ($id > 0) {
+            $existing = $pdo->prepare('SELECT status, published_at, featured_image FROM blog_posts WHERE id = ?');
+            $existing->execute([$id]);
+            $current = $existing->fetch() ?: null;
+        }
 
         $image = handleBlogImageUpload($current['featured_image'] ?? null);
         $categoryId = !empty($_POST['category_id']) ? (int) $_POST['category_id'] : null;
@@ -70,17 +125,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($title === '' || $content === '') {
             setFlash('danger', 'Title and content are required.');
+        } elseif (!$current) {
+            setFlash('danger', 'Blog post not found.');
         } else {
-            $publishedAt = $current['published_at'] ?? null;
-            if ($status === 'published' && !$publishedAt) {
-                $publishedAt = date('Y-m-d H:i:s');
-            }
+            try {
+                $publishedAt = $current['published_at'] ?? null;
+                if ($status === 'published' && !$publishedAt) {
+                    $publishedAt = date('Y-m-d H:i:s');
+                }
 
-            $stmt = $pdo->prepare(
-                'UPDATE blog_posts SET title = ?, slug = ?, excerpt = ?, content = ?, status = ?, featured_image = ?, category_id = ?, published_at = ? WHERE id = ?'
-            );
-            $stmt->execute([$title, $slug, $excerpt ?: null, $content, $status, $image ?: null, $categoryId, $publishedAt, $id]);
-            setFlash('success', 'Blog post updated successfully.');
+                $stmt = $pdo->prepare(
+                    'UPDATE blog_posts SET title = ?, slug = ?, excerpt = ?, content = ?, status = ?, featured_image = ?, category_id = ?, published_at = ? WHERE id = ?'
+                );
+                $stmt->execute([$title, $slug, $excerpt ?: null, $content, $status, $image ?: null, $categoryId, $publishedAt, $id]);
+                setFlash('success', 'Blog post updated successfully.');
+            } catch (Throwable $e) {
+                setFlash('danger', 'Failed to update blog post: ' . $e->getMessage());
+            }
         }
         redirect('dashboard.php?page=blogs');
     }
@@ -88,12 +149,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($action === 'delete') {
     $id = (int) ($_GET['id'] ?? 0);
-    $pdo->prepare('DELETE FROM blog_posts WHERE id = ?')->execute([$id]);
-    setFlash('success', 'Blog post deleted.');
+    try {
+        $pdo->prepare('DELETE FROM blog_posts WHERE id = ?')->execute([$id]);
+        setFlash('success', 'Blog post deleted.');
+    } catch (Throwable $e) {
+        setFlash('danger', 'Failed to delete blog post: ' . $e->getMessage());
+    }
     redirect('dashboard.php?page=blogs');
 }
 
-// Fetch blog posts with fallback dummy list if empty or database not pre-populated
+// Fetch blog posts
 $posts = [];
 try {
     $posts = $pdo->query(
@@ -112,36 +177,6 @@ try {
     $categories = $pdo->query('SELECT * FROM blog_categories ORDER BY name ASC')->fetchAll();
 } catch (Throwable $e) {
     $categories = [];
-}
-
-// Fallback dummy data if no posts found
-if (empty($posts)) {
-    $posts = [
-        [
-            'id' => 1,
-            'title' => 'Best Time to Visit Mount Bromo and What to Expect',
-            'slug' => 'best-time-to-visit-mount-bromo-and-what-to-expect',
-            'excerpt' => 'A complete guide on the optimal weather conditions and sunrise spots.',
-            'content' => 'Full content about Mount Bromo travel advice.',
-            'status' => 'published',
-            'category_name' => 'Tips',
-            'category_id' => 1,
-            'featured_image' => 'assets/images/bromo.jpg',
-            'created_at' => '2024-05-10 10:00:00',
-        ],
-        [
-            'id' => 2,
-            'title' => 'Complete Travel Guide to Yogyakarta',
-            'slug' => 'complete-travel-guide-to-yogyakarta',
-            'excerpt' => 'Discover historical temples, culinary delights, and local arts in Jogja.',
-            'content' => 'Full content about Yogyakarta destination overview.',
-            'status' => 'published',
-            'category_name' => 'Guide',
-            'category_id' => 2,
-            'featured_image' => 'assets/images/temple.jpg',
-            'created_at' => '2024-05-05 14:30:00',
-        ],
-    ];
 }
 
 $editItem = null;
