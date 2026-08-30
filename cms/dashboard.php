@@ -13,6 +13,7 @@ function db(): PDO
 
 function redirect(string $url): void
 {
+    // session_write_close();
     header('Location: ' . $url);
     exit;
 }

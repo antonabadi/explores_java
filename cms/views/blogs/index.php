@@ -162,8 +162,7 @@ if (isset($_GET['edit'])) {
             <h1 class="page-title">Blog Posts</h1>
             <p class="date-indicator">Manage blog articles and stories</p>
         </div>
-        <button type="button" class="btn-primary" data-modal-open="blogModal"
-                <?= $editItem ? '' : 'data-reset-form="blogForm"' ?>>
+        <button type="button" class="btn-primary" id="btnAddBlog">
             + Add Blog Post
         </button>
     </div>
@@ -209,10 +208,24 @@ if (isset($_GET['edit'])) {
                                 <td><?= formatDate($p['created_at'] ?? null) ?></td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <a href="dashboard.php?page=blogs&edit=<?= (int) $p['id'] ?>"
-                                           class="btn-icon btn-edit" title="Edit">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        <a href="../blog-detail?slug=<?= urlencode($p['slug']) ?>"
+                                           target="_blank"
+                                           class="btn-icon btn-view" title="Visit Blog Page">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                         </a>
+                                        <button type="button"
+                                                class="btn-icon btn-edit btn-edit-blog"
+                                                title="Edit"
+                                                data-id="<?= (int) $p['id'] ?>"
+                                                data-title="<?= e($p['title']) ?>"
+                                                data-slug="<?= e($p['slug']) ?>"
+                                                data-category_id="<?= (int) ($p['category_id'] ?? 0) ?>"
+                                                data-status="<?= e($p['status'] ?? 'draft') ?>"
+                                                data-featured_image="<?= e($p['featured_image'] ?? '') ?>"
+                                                data-excerpt="<?= e($p['excerpt'] ?? '') ?>"
+                                                data-content="<?= e($p['content'] ?? '') ?>">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </button>
                                         <a href="dashboard.php?page=blogs&action=delete&id=<?= (int) $p['id'] ?>"
                                            class="btn-icon btn-delete" title="Delete"
                                            data-confirm="Delete blog post &quot;<?= e($p['title']) ?>&quot;?">
@@ -234,32 +247,28 @@ if (isset($_GET['edit'])) {
 <div class="modal-overlay" id="blogModal">
     <div class="modal-container modal-lg">
         <div class="modal-header">
-            <h3 class="modal-title"><?= $editItem ? 'Edit Blog Post' : 'Add Blog Post' ?></h3>
+            <h3 class="modal-title" id="blogModalTitle">Add Blog Post</h3>
             <button type="button" class="btn-close-modal" data-modal-close>&times;</button>
         </div>
         <form method="post" id="blogForm" enctype="multipart/form-data">
-            <input type="hidden" name="action" value="<?= $editItem ? 'update' : 'create' ?>">
-            <?php if ($editItem): ?>
-                <input type="hidden" name="id" value="<?= (int) $editItem['id'] ?>">
-            <?php endif; ?>
+            <input type="hidden" name="action" id="blog_action" value="create">
+            <input type="hidden" name="id" id="blog_id" value="">
             <div class="form-grid">
                 <div class="form-group">
                     <label for="blog_title">Title *</label>
-                    <input type="text" id="blog_title" name="title" class="form-control" required
-                           value="<?= e($editItem['title'] ?? '') ?>">
+                    <input type="text" id="blog_title" name="title" class="form-control" required value="">
                 </div>
                 <div class="form-group">
                     <label for="blog_slug">Slug</label>
                     <input type="text" id="blog_slug" name="slug" class="form-control"
-                           placeholder="Auto-generated if empty"
-                           value="<?= e($editItem['slug'] ?? '') ?>">
+                           placeholder="Auto-generated if empty" value="">
                 </div>
                 <div class="form-group">
                     <label for="blog_category">Category</label>
                     <select id="blog_category" name="category_id" class="form-control">
                         <option value="">-- Select Category --</option>
                         <?php foreach ($categories as $cat): ?>
-                            <option value="<?= (int) $cat['id'] ?>" <?= isset($editItem['category_id']) && (int)$editItem['category_id'] === (int)$cat['id'] ? 'selected' : '' ?>>
+                            <option value="<?= (int) $cat['id'] ?>">
                                 <?= e($cat['name']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -268,9 +277,9 @@ if (isset($_GET['edit'])) {
                 <div class="form-group">
                     <label for="blog_status">Status</label>
                     <select id="blog_status" name="status" class="form-control">
-                        <option value="draft" <?= ($editItem['status'] ?? '') === 'draft' ? 'selected' : '' ?>>Draft</option>
-                        <option value="published" <?= ($editItem['status'] ?? '') === 'published' ? 'selected' : '' ?>>Published</option>
-                        <option value="archived" <?= ($editItem['status'] ?? '') === 'archived' ? 'selected' : '' ?>>Archived</option>
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                        <option value="archived">Archived</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -280,26 +289,62 @@ if (isset($_GET['edit'])) {
                 <div class="form-group">
                     <label for="blog_image">Or Image URL</label>
                     <input type="text" id="blog_image" name="featured_image" class="form-control"
-                           placeholder="assets/images/bromo.jpg"
-                           value="<?= e($editItem['featured_image'] ?? '') ?>">
+                           placeholder="assets/images/bromo.jpg" value="">
                 </div>
                 <div class="form-group full-width">
                     <label for="blog_excerpt">Excerpt</label>
-                    <textarea id="blog_excerpt" name="excerpt" class="form-control" rows="2"><?= e($editItem['excerpt'] ?? '') ?></textarea>
+                    <textarea id="blog_excerpt" name="excerpt" class="form-control" rows="2"></textarea>
                 </div>
                 <div class="form-group full-width">
                     <label for="blog_content">Content *</label>
-                    <textarea id="blog_content" name="content" class="form-control" rows="4" required><?= e($editItem['content'] ?? '') ?></textarea>
+                    <textarea id="blog_content" name="content" class="form-control" rows="4" required></textarea>
                 </div>
                 <div class="modal-actions full-width">
                     <button type="button" class="btn-secondary" data-modal-close>Cancel</button>
-                    <button type="submit" class="btn-submit"><?= $editItem ? 'Update' : 'Create' ?></button>
+                    <button type="submit" class="btn-submit" id="blogSubmitBtn">Create</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
 
-<?php if ($editItem): ?>
-<script>document.addEventListener('DOMContentLoaded', () => openModal('blogModal'));</script>
-<?php endif; ?>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const btnAddBlog = document.getElementById('btnAddBlog');
+    const blogForm = document.getElementById('blogForm');
+    const blogModalTitle = document.getElementById('blogModalTitle');
+    const blogAction = document.getElementById('blog_action');
+    const blogId = document.getElementById('blog_id');
+    const blogSubmitBtn = document.getElementById('blogSubmitBtn');
+
+    if (btnAddBlog) {
+        btnAddBlog.addEventListener('click', () => {
+            blogForm.reset();
+            blogAction.value = 'create';
+            blogId.value = '';
+            blogModalTitle.textContent = 'Add Blog Post';
+            blogSubmitBtn.textContent = 'Create';
+            openModal('blogModal');
+        });
+    }
+
+    document.querySelectorAll('.btn-edit-blog').forEach(btn => {
+        btn.addEventListener('click', () => {
+            blogForm.reset();
+            blogAction.value = 'update';
+            blogId.value = btn.dataset.id || '';
+            document.getElementById('blog_title').value = btn.dataset.title || '';
+            document.getElementById('blog_slug').value = btn.dataset.slug || '';
+            document.getElementById('blog_category').value = btn.dataset.category_id || '';
+            document.getElementById('blog_status').value = btn.dataset.status || 'draft';
+            document.getElementById('blog_image').value = btn.dataset.featured_image || '';
+            document.getElementById('blog_excerpt').value = btn.dataset.excerpt || '';
+            document.getElementById('blog_content').value = btn.dataset.content || '';
+
+            blogModalTitle.textContent = 'Edit Blog Post';
+            blogSubmitBtn.textContent = 'Update';
+            openModal('blogModal');
+        });
+    });
+});
+</script>
