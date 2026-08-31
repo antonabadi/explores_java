@@ -8,10 +8,15 @@ class BlogPost extends Model
 
     protected array $fillable = [
         'title',
+        'meta_title',
+        'meta_description',
         'slug',
+        'canonical_url',
         'content',
         'excerpt',
         'featured_image',
+        'og_image',
+        'reading_time',
         'status',
         'author_id',
         'category_id',

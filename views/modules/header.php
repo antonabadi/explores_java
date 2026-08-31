@@ -3,7 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Explores Java — Discover the Beauty of Java Island</title>
+<title><?= htmlspecialchars($metaTitle ?? 'Explores Java — Discover the Beauty of Java Island') ?></title>
+<?php if (!empty($metaDescription)): ?>
+<meta name="description" content="<?= htmlspecialchars($metaDescription) ?>">
+<meta property="og:description" content="<?= htmlspecialchars($metaDescription) ?>">
+<?php endif; ?>
+<?php if (!empty($canonicalUrl)): ?>
+<link rel="canonical" href="<?= htmlspecialchars($canonicalUrl) ?>">
+<meta property="og:url" content="<?= htmlspecialchars($canonicalUrl) ?>">
+<?php endif; ?>
+<?php if (!empty($ogImage)): ?>
+<meta property="og:image" content="<?= htmlspecialchars($ogImage) ?>">
+<?php endif; ?>
+<?php if (!empty($metaTitle)): ?>
+<meta property="og:title" content="<?= htmlspecialchars($metaTitle) ?>">
+<?php endif; ?>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body id="top">

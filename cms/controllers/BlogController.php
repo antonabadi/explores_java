@@ -59,6 +59,11 @@ class BlogController extends Controller
             $input['slug'] = $baseSlug ?: 'blog-post';
         }
 
+        if (!isset($input['reading_time']) || $input['reading_time'] === '' || (int)$input['reading_time'] <= 0) {
+            $wordCount = str_word_count(strip_tags($input['content'] ?? ''));
+            $input['reading_time'] = max(1, (int) ceil($wordCount / 200));
+        }
+
         $id = $this->model->create($input);
         $this->success(['id' => $id], 'Blog post created', 201);
     }
@@ -72,6 +77,12 @@ class BlogController extends Controller
         }
 
         $input = $this->getInput();
+
+        if (isset($input['content']) && (!isset($input['reading_time']) || $input['reading_time'] === '' || (int)$input['reading_time'] <= 0)) {
+            $wordCount = str_word_count(strip_tags($input['content'] ?? ''));
+            $input['reading_time'] = max(1, (int) ceil($wordCount / 200));
+        }
+
         $this->model->update($id, $input);
         $this->success(null, 'Blog post updated');
     }

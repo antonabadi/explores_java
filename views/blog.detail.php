@@ -28,12 +28,17 @@ if (!$post) {
     $post = [
         'id' => 1,
         'title' => 'Best Time to Visit Mount Bromo and What to Expect',
+        'meta_title' => 'Best Time to Visit Mount Bromo & Sunrise Guide | Explores Java',
+        'meta_description' => 'A complete travel guide on the optimal weather conditions, packing tips, and best sunrise spots for Mount Bromo.',
         'slug' => 'best-time-to-visit-mount-bromo-and-what-to-expect',
+        'canonical_url' => '',
         'category_name' => 'Tips',
         'author_name' => 'Admin Explorer',
         'author_avatar' => null,
         'published_at' => '2024-05-10',
         'featured_image' => 'assets/images/bromo.jpg',
+        'og_image' => 'assets/images/bromo.jpg',
+        'reading_time' => 5,
         'excerpt' => 'A complete travel guide to planning your adventure to Mount Bromo, from weather forecasts to sunrise view points.',
         'content' => '
             <p>Mount Bromo is one of the most iconic landscapes in Indonesia. Standing tall in the middle of a vast plain called the "Sea of Sand", this active volcano offers an unearthly sunrise experience that attracts travelers from all across the globe.</p>
@@ -64,6 +69,7 @@ if (empty($recentPosts)) {
             'featured_image' => 'assets/images/temple.jpg',
             'published_at' => '2024-05-05',
             'category_name' => 'Guide',
+            'reading_time' => 4,
         ],
         [
             'title' => 'Hidden Waterfalls in Java You Must Visit',
@@ -71,6 +77,7 @@ if (empty($recentPosts)) {
             'featured_image' => 'assets/images/waterfall.jpg',
             'published_at' => '2024-04-28',
             'category_name' => 'Nature',
+            'reading_time' => 6,
         ],
         [
             'title' => 'Exploring the Tea Plantations of West Java',
@@ -78,10 +85,42 @@ if (empty($recentPosts)) {
             'featured_image' => 'assets/images/hills.jpg',
             'published_at' => '2024-04-20',
             'category_name' => 'Culture',
+            'reading_time' => 3,
         ],
     ];
 }
+
+// Calculate reading time dynamically if not explicitly specified
+$wordCount = str_word_count(strip_tags($post['content'] ?? ''));
+$calcReadingTime = max(1, (int) ceil($wordCount / 200));
+$readingTime = (!empty($post['reading_time']) && (int) $post['reading_time'] > 0) ? (int) $post['reading_time'] : $calcReadingTime;
+
+// Extract SEO metadata
+$metaTitle = !empty($post['meta_title']) ? $post['meta_title'] : ($post['title'] ?? 'Explores Java Blog');
+$metaDescription = !empty($post['meta_description']) ? $post['meta_description'] : ($post['excerpt'] ?? '');
+$canonicalUrl = !empty($post['canonical_url']) ? $post['canonical_url'] : '';
+$ogImage = !empty($post['og_image']) ? $post['og_image'] : ($post['featured_image'] ?? '');
 ?>
+
+<!-- Dynamic SEO Meta Injector -->
+<script>
+  if (<?= json_encode($metaTitle) ?>) { document.title = <?= json_encode($metaTitle) ?>; }
+  <?php if ($metaDescription): ?>
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) { metaDesc = document.createElement('meta'); metaDesc.name = 'description'; document.head.appendChild(metaDesc); }
+    metaDesc.content = <?= json_encode($metaDescription) ?>;
+  <?php endif; ?>
+  <?php if ($canonicalUrl): ?>
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical); }
+    canonical.href = <?= json_encode($canonicalUrl) ?>;
+  <?php endif; ?>
+  <?php if ($ogImage): ?>
+    let ogImg = document.querySelector('meta[property="og:image"]');
+    if (!ogImg) { ogImg = document.createElement('meta'); ogImg.setAttribute('property', 'og:image'); document.head.appendChild(ogImg); }
+    ogImg.content = <?= json_encode($ogImage) ?>;
+  <?php endif; ?>
+</script>
 
 <!-- ================= BLOG DETAIL HERO ================= -->
 <section class="hero" style="padding: 100px 0 60px;">
@@ -92,6 +131,8 @@ if (empty($recentPosts)) {
       <span>By <?= htmlspecialchars($post['author_name'] ?? 'Explores Java Team') ?></span>
       <span class="dot" style="display:inline-block; width:4px; height:4px; background:currentColor; border-radius:50%; margin:0 8px;"></span>
       <span><?= !empty($post['published_at']) ? date('F j, Y', strtotime($post['published_at'])) : date('F j, Y') ?></span>
+      <span class="dot" style="display:inline-block; width:4px; height:4px; background:currentColor; border-radius:50%; margin:0 8px;"></span>
+      <span>⏱️ <?= $readingTime ?> min read</span>
     </p>
   </div>
 </section>

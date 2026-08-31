@@ -131,6 +131,15 @@ if (empty($blogPosts)) {
               <?= !empty($post['published_at']) ? date('M j, Y', strtotime($post['published_at'])) : date('M j, Y') ?>
               <span class="dot"></span>
               <?= htmlspecialchars($post['category_name'] ?? 'General') ?>
+              <?php
+                $readMins = (!empty($post['reading_time']) && (int)$post['reading_time'] > 0)
+                  ? (int)$post['reading_time']
+                  : (!empty($post['content']) ? max(1, (int)ceil(str_word_count(strip_tags($post['content'])) / 200)) : 0);
+              ?>
+              <?php if ($readMins > 0): ?>
+                <span class="dot"></span>
+                <span>⏱️ <?= $readMins ?> min read</span>
+              <?php endif; ?>
             </p>
           </div>
         </article>

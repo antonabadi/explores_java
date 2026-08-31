@@ -15,10 +15,15 @@ try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS blog_posts (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
+        meta_title VARCHAR(255) DEFAULT NULL,
+        meta_description TEXT DEFAULT NULL,
         slug VARCHAR(255) NOT NULL UNIQUE,
+        canonical_url VARCHAR(255) DEFAULT NULL,
         content LONGTEXT NOT NULL,
         excerpt TEXT,
         featured_image VARCHAR(255),
+        og_image VARCHAR(255) DEFAULT NULL,
+        reading_time INT DEFAULT 0,
         status ENUM('draft', 'published', 'archived') DEFAULT 'draft',
         author_id INT NULL,
         category_id INT NULL,
@@ -81,10 +86,19 @@ function handleBlogImageUpload($existingImage = null) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'create') {
         $title = trim($_POST['title'] ?? '');
+        $metaTitle = trim($_POST['meta_title'] ?? '');
+        $metaDescription = trim($_POST['meta_description'] ?? '');
         $excerpt = trim($_POST['excerpt'] ?? '');
         $content = trim($_POST['content'] ?? '');
         $status = trim($_POST['status'] ?? 'draft');
         $image = handleBlogImageUpload();
+        $ogImage = trim($_POST['og_image'] ?? '');
+        $canonicalUrl = trim($_POST['canonical_url'] ?? '');
+        $readingTimeInput = $_POST['reading_time'] ?? '';
+        $wordCount = str_word_count(strip_tags($content));
+        $calcReadingTime = max(1, (int) ceil($wordCount / 200));
+        $readingTime = ($readingTimeInput !== '' && is_numeric($readingTimeInput)) ? (int) $readingTimeInput : $calcReadingTime;
+
         $categoryId = !empty($_POST['category_id']) ? (int) $_POST['category_id'] : null;
         $slug = trim($_POST['slug'] ?? '') ?: uniqueSlug($pdo, 'blog_posts', $title);
         $publishedAt = ($status === 'published') ? date('Y-m-d H:i:s') : null;
@@ -94,9 +108,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             try {
                 $stmt = $pdo->prepare(
-                    'INSERT INTO blog_posts (title, slug, excerpt, content, status, featured_image, category_id, published_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+                    'INSERT INTO blog_posts (title, meta_title, meta_description, slug, canonical_url, excerpt, content, status, featured_image, og_image, reading_time, category_id, published_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
                 );
-                $stmt->execute([$title, $slug, $excerpt ?: null, $content, $status, $image ?: null, $categoryId, $publishedAt]);
+                $stmt->execute([
+                    $title,
+                    $metaTitle ?: null,
+                    $metaDescription ?: null,
+                    $slug,
+                    $canonicalUrl ?: null,
+                    $excerpt ?: null,
+                    $content,
+                    $status,
+                    $image ?: null,
+                    $ogImage ?: null,
+                    $readingTime,
+                    $categoryId,
+                    $publishedAt
+                ]);
                 setFlash('success', 'Blog post created successfully.');
             } catch (Throwable $e) {
                 setFlash('danger', 'Failed to save blog post: ' . $e->getMessage());
@@ -108,6 +136,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'update') {
         $id = (int) ($_POST['id'] ?? 0);
         $title = trim($_POST['title'] ?? '');
+        $metaTitle = trim($_POST['meta_title'] ?? '');
+        $metaDescription = trim($_POST['meta_description'] ?? '');
         $excerpt = trim($_POST['excerpt'] ?? '');
         $content = trim($_POST['content'] ?? '');
         $status = trim($_POST['status'] ?? 'draft');
@@ -120,6 +150,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $image = handleBlogImageUpload($current['featured_image'] ?? null);
+        $ogImage = trim($_POST['og_image'] ?? '');
+        $canonicalUrl = trim($_POST['canonical_url'] ?? '');
+        $readingTimeInput = $_POST['reading_time'] ?? '';
+        $wordCount = str_word_count(strip_tags($content));
+        $calcReadingTime = max(1, (int) ceil($wordCount / 200));
+        $readingTime = ($readingTimeInput !== '' && is_numeric($readingTimeInput)) ? (int) $readingTimeInput : $calcReadingTime;
+
         $categoryId = !empty($_POST['category_id']) ? (int) $_POST['category_id'] : null;
         $slug = trim($_POST['slug'] ?? '') ?: uniqueSlug($pdo, 'blog_posts', $title, $id);
 
@@ -135,9 +172,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $stmt = $pdo->prepare(
-                    'UPDATE blog_posts SET title = ?, slug = ?, excerpt = ?, content = ?, status = ?, featured_image = ?, category_id = ?, published_at = ? WHERE id = ?'
+                    'UPDATE blog_posts SET title = ?, meta_title = ?, meta_description = ?, slug = ?, canonical_url = ?, excerpt = ?, content = ?, status = ?, featured_image = ?, og_image = ?, reading_time = ?, category_id = ?, published_at = ? WHERE id = ?'
                 );
-                $stmt->execute([$title, $slug, $excerpt ?: null, $content, $status, $image ?: null, $categoryId, $publishedAt, $id]);
+                $stmt->execute([
+                    $title,
+                    $metaTitle ?: null,
+                    $metaDescription ?: null,
+                    $slug,
+                    $canonicalUrl ?: null,
+                    $excerpt ?: null,
+                    $content,
+                    $status,
+                    $image ?: null,
+                    $ogImage ?: null,
+                    $readingTime,
+                    $categoryId,
+                    $publishedAt,
+                    $id
+                ]);
                 setFlash('success', 'Blog post updated successfully.');
             } catch (Throwable $e) {
                 setFlash('danger', 'Failed to update blog post: ' . $e->getMessage());
@@ -253,10 +305,15 @@ if (isset($_GET['edit'])) {
                                                 title="Edit"
                                                 data-id="<?= (int) $p['id'] ?>"
                                                 data-title="<?= e($p['title']) ?>"
+                                                data-meta_title="<?= e($p['meta_title'] ?? '') ?>"
+                                                data-meta_description="<?= e($p['meta_description'] ?? '') ?>"
                                                 data-slug="<?= e($p['slug']) ?>"
+                                                data-canonical_url="<?= e($p['canonical_url'] ?? '') ?>"
                                                 data-category_id="<?= (int) ($p['category_id'] ?? 0) ?>"
                                                 data-status="<?= e($p['status'] ?? 'draft') ?>"
                                                 data-featured_image="<?= e($p['featured_image'] ?? '') ?>"
+                                                data-og_image="<?= e($p['og_image'] ?? '') ?>"
+                                                data-reading_time="<?= (int) ($p['reading_time'] ?? 0) ?>"
                                                 data-excerpt="<?= e($p['excerpt'] ?? '') ?>"
                                                 data-content="<?= e($p['content'] ?? '') ?>">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -326,6 +383,37 @@ if (isset($_GET['edit'])) {
                     <input type="text" id="blog_image" name="featured_image" class="form-control"
                            placeholder="assets/images/bromo.jpg" value="">
                 </div>
+
+                <!-- SEO Fields -->
+                <div class="form-group full-width" style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 15px;">
+                    <strong style="color: var(--accent, #e67e22);">SEO Settings</strong>
+                </div>
+                <div class="form-group">
+                    <label for="blog_meta_title">Meta Title</label>
+                    <input type="text" id="blog_meta_title" name="meta_title" class="form-control"
+                           placeholder="SEO Title (defaults to post title)" value="">
+                </div>
+                <div class="form-group">
+                    <label for="blog_canonical_url">Canonical URL</label>
+                    <input type="text" id="blog_canonical_url" name="canonical_url" class="form-control"
+                           placeholder="https://exploresjava.com/blog-detail?slug=..." value="">
+                </div>
+                <div class="form-group">
+                    <label for="blog_og_image">OG Image URL</label>
+                    <input type="text" id="blog_og_image" name="og_image" class="form-control"
+                           placeholder="OpenGraph image URL (defaults to featured image)" value="">
+                </div>
+                <div class="form-group">
+                    <label for="blog_reading_time">Reading Time (minutes)</label>
+                    <input type="number" id="blog_reading_time" name="reading_time" class="form-control"
+                           placeholder="Auto-calculated if left 0/empty" min="0" value="">
+                </div>
+                <div class="form-group full-width">
+                    <label for="blog_meta_description">Meta Description</label>
+                    <textarea id="blog_meta_description" name="meta_description" class="form-control" rows="2"
+                              placeholder="SEO meta description summary"></textarea>
+                </div>
+
                 <div class="form-group full-width">
                     <label for="blog_excerpt">Excerpt</label>
                     <textarea id="blog_excerpt" name="excerpt" class="form-control" rows="2"></textarea>
@@ -369,10 +457,15 @@ document.addEventListener('DOMContentLoaded', () => {
             blogAction.value = 'update';
             blogId.value = btn.dataset.id || '';
             document.getElementById('blog_title').value = btn.dataset.title || '';
+            document.getElementById('blog_meta_title').value = btn.dataset.meta_title || '';
+            document.getElementById('blog_meta_description').value = btn.dataset.meta_description || '';
             document.getElementById('blog_slug').value = btn.dataset.slug || '';
+            document.getElementById('blog_canonical_url').value = btn.dataset.canonical_url || '';
             document.getElementById('blog_category').value = btn.dataset.category_id || '';
             document.getElementById('blog_status').value = btn.dataset.status || 'draft';
             document.getElementById('blog_image').value = btn.dataset.featured_image || '';
+            document.getElementById('blog_og_image').value = btn.dataset.og_image || '';
+            document.getElementById('blog_reading_time').value = btn.dataset.reading_time || '';
             document.getElementById('blog_excerpt').value = btn.dataset.excerpt || '';
             document.getElementById('blog_content').value = btn.dataset.content || '';
 
