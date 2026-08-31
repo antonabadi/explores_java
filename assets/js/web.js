@@ -178,5 +178,124 @@
 
     startTimer();
   })();
+
+  /* Cookie Consent Banner & Preferences */
+  (function () {
+    var STORAGE_KEY = 'explores_java_cookie_consent';
+    var banner = document.getElementById('cookieBanner');
+    var modalBackdrop = document.getElementById('cookieModalBackdrop');
+    var acceptAllBtn = document.getElementById('cookieAcceptAllBtn');
+    var declineBtn = document.getElementById('cookieDeclineBtn');
+    var prefsBtn = document.getElementById('cookiePrefsBtn');
+    var openCookieSettingsLink = document.getElementById('openCookieSettings');
+    var closeCookieModalBtn = document.getElementById('closeCookieModal');
+    var saveCookiePrefsBtn = document.getElementById('saveCookiePrefsBtn');
+    var modalAcceptAllBtn = document.getElementById('modalAcceptAllBtn');
+    var analyticsToggle = document.getElementById('cookieAnalytics');
+    var marketingToggle = document.getElementById('cookieMarketing');
+
+    if (!banner) return;
+
+    function getConsent() {
+      try {
+        var data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function setConsent(consentObj) {
+      try {
+        consentObj.timestamp = new Date().toISOString();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(consentObj));
+      } catch (e) {}
+    }
+
+    function showBanner() {
+      banner.classList.add('show');
+    }
+
+    function hideBanner() {
+      banner.classList.remove('show');
+    }
+
+    function openModal() {
+      var current = getConsent() || { analytics: false, marketing: false };
+      if (analyticsToggle) analyticsToggle.checked = !!current.analytics;
+      if (marketingToggle) marketingToggle.checked = !!current.marketing;
+      if (modalBackdrop) modalBackdrop.classList.add('show');
+    }
+
+    function closeModal() {
+      if (modalBackdrop) modalBackdrop.classList.remove('show');
+    }
+
+    // Initialize check
+    var existingConsent = getConsent();
+    if (!existingConsent) {
+      setTimeout(showBanner, 600);
+    }
+
+    // Event listeners
+    if (acceptAllBtn) {
+      acceptAllBtn.addEventListener('click', function () {
+        setConsent({ necessary: true, analytics: true, marketing: true });
+        hideBanner();
+        if (typeof showToast === 'function') showToast('Cookie preferences saved successfully.');
+      });
+    }
+
+    if (declineBtn) {
+      declineBtn.addEventListener('click', function () {
+        setConsent({ necessary: true, analytics: false, marketing: false });
+        hideBanner();
+        if (typeof showToast === 'function') showToast('Non-essential cookies declined.');
+      });
+    }
+
+    if (prefsBtn) {
+      prefsBtn.addEventListener('click', function () {
+        openModal();
+      });
+    }
+
+    if (openCookieSettingsLink) {
+      openCookieSettingsLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        openModal();
+      });
+    }
+
+    if (closeCookieModalBtn) {
+      closeCookieModalBtn.addEventListener('click', closeModal);
+    }
+
+    if (modalBackdrop) {
+      modalBackdrop.addEventListener('click', function (e) {
+        if (e.target === modalBackdrop) closeModal();
+      });
+    }
+
+    if (saveCookiePrefsBtn) {
+      saveCookiePrefsBtn.addEventListener('click', function () {
+        var analyticsVal = analyticsToggle ? analyticsToggle.checked : false;
+        var marketingVal = marketingToggle ? marketingToggle.checked : false;
+        setConsent({ necessary: true, analytics: analyticsVal, marketing: marketingVal });
+        closeModal();
+        hideBanner();
+        if (typeof showToast === 'function') showToast('Cookie settings updated.');
+      });
+    }
+
+    if (modalAcceptAllBtn) {
+      modalAcceptAllBtn.addEventListener('click', function () {
+        setConsent({ necessary: true, analytics: true, marketing: true });
+        closeModal();
+        hideBanner();
+        if (typeof showToast === 'function') showToast('Cookie preferences saved successfully.');
+      });
+    }
+  })();
 })();
 

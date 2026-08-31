@@ -152,6 +152,7 @@ try {
           <li><a href="#">Travel Tips</a></li>
           <li><a href="#">Terms &amp; Conditions</a></li>
           <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#" id="openCookieSettings">Cookie Settings</a></li>
         </ul>
       </div>
       <div class="f-col">
@@ -171,6 +172,78 @@ try {
 </footer>
 
 <div class="toast" id="toast" role="status"></div>
+
+<!-- ================= COOKIE CONSENT BANNER & MODAL ================= -->
+<div class="cookie-banner" id="cookieBanner" role="dialog" aria-live="polite" aria-label="Cookie Consent">
+  <div class="cookie-banner-content">
+    <div class="cookie-banner-text">
+      <div class="cookie-banner-title">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cookie-icon"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5Z"/><path d="M8.5 8.5v.01"/><path d="M16 15.5v.01"/><path d="M12 12v.01"/><path d="M11 17v.01"/><path d="M7 14v.01"/></svg>
+        <span>We Value Your Privacy</span>
+      </div>
+      <p class="cookie-banner-desc">
+        We use cookies to enhance your browsing experience, serve personalized content, and analyze our site traffic. Read our <a href="#" class="cookie-link">Privacy Policy</a> for more information.
+      </p>
+    </div>
+    <div class="cookie-banner-actions">
+      <button type="button" class="btn btn-sm btn-outline" id="cookieDeclineBtn">Decline Non-Essential</button>
+      <button type="button" class="btn btn-sm btn-outline" id="cookiePrefsBtn">Preferences</button>
+      <button type="button" class="btn btn-sm btn-primary" id="cookieAcceptAllBtn">Accept All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cookie Preferences Modal -->
+<div class="cookie-modal-backdrop" id="cookieModalBackdrop" tabindex="-1">
+  <div class="cookie-modal" role="dialog" aria-modal="true" aria-labelledby="cookieModalTitle">
+    <div class="cookie-modal-header">
+      <h3 id="cookieModalTitle" class="cookie-modal-heading">Cookie Privacy Settings</h3>
+      <button type="button" class="cookie-modal-close" id="closeCookieModal" aria-label="Close Modal">&times;</button>
+    </div>
+    <div class="cookie-modal-body">
+      <p class="cookie-modal-intro">
+        You can choose which categories of cookies you wish to allow. Essential cookies are always enabled to ensure the proper functioning of Explores Java.
+      </p>
+
+      <div class="cookie-group">
+        <div class="cookie-group-info">
+          <h4>Essential Cookies (Required)</h4>
+          <p>Necessary for basic website operation, secure navigation, and core system functionality.</p>
+        </div>
+        <div class="cookie-toggle">
+          <input type="checkbox" id="cookieEssential" checked disabled>
+          <label for="cookieEssential" class="toggle-slider"></label>
+        </div>
+      </div>
+
+      <div class="cookie-group">
+        <div class="cookie-group-info">
+          <h4>Analytics Cookies</h4>
+          <p>Help us understand how visitors interact with the website to improve our service quality.</p>
+        </div>
+        <div class="cookie-toggle">
+          <input type="checkbox" id="cookieAnalytics">
+          <label for="cookieAnalytics" class="toggle-slider"></label>
+        </div>
+      </div>
+
+      <div class="cookie-group">
+        <div class="cookie-group-info">
+          <h4>Marketing &amp; Promotional Cookies</h4>
+          <p>Help us deliver relevant tour offers and destination promotions tailored to your interests.</p>
+        </div>
+        <div class="cookie-toggle">
+          <input type="checkbox" id="cookieMarketing">
+          <label for="cookieMarketing" class="toggle-slider"></label>
+        </div>
+      </div>
+    </div>
+    <div class="cookie-modal-footer">
+      <button type="button" class="btn btn-sm btn-outline" id="saveCookiePrefsBtn">Save Preferences</button>
+      <button type="button" class="btn btn-sm btn-primary" id="modalAcceptAllBtn">Accept All</button>
+    </div>
+  </div>
+</div>
 
 <script src="assets/js/web.js"></script>
 
