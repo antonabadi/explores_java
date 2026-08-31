@@ -92,4 +92,91 @@
   } else {
     document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('visible'); });
   }
+
+  /* Auto-scroll Testimonials Slider (satu per satu) */
+  (function () {
+    var track = document.getElementById('testiTrack');
+    if (!track) return;
+
+    var cards = track.querySelectorAll('.testi-card');
+    if (cards.length === 0) return;
+
+    var prevBtn = document.getElementById('testiPrev');
+    var nextBtn = document.getElementById('testiNext');
+    var dotsContainer = document.getElementById('testiDots');
+    var currentIndex = 0;
+    var timer = null;
+    var delay = 4500;
+
+    if (dotsContainer && cards.length > 1) {
+      cards.forEach(function (_, i) {
+        var dot = document.createElement('button');
+        dot.className = 'testi-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', 'Go to testimonial ' + (i + 1));
+        dot.addEventListener('click', function () {
+          goToSlide(i);
+          resetTimer();
+        });
+        dotsContainer.appendChild(dot);
+      });
+    }
+
+    function updateDots() {
+      if (!dotsContainer) return;
+      var dots = dotsContainer.querySelectorAll('.testi-dot');
+      dots.forEach(function (dot, i) {
+        dot.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    function goToSlide(index) {
+      if (index < 0) index = cards.length - 1;
+      if (index >= cards.length) index = 0;
+      currentIndex = index;
+      track.style.transform = 'translateX(-' + (currentIndex * 100) + '%)';
+      updateDots();
+    }
+
+    function nextSlide() {
+      goToSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentIndex - 1);
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function () {
+        prevSlide();
+        resetTimer();
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function () {
+        nextSlide();
+        resetTimer();
+      });
+    }
+
+    function startTimer() {
+      if (cards.length > 1) {
+        timer = setInterval(nextSlide, delay);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      startTimer();
+    }
+
+    var sliderWrap = document.getElementById('testiSlider');
+    if (sliderWrap) {
+      sliderWrap.addEventListener('mouseenter', function () { clearInterval(timer); });
+      sliderWrap.addEventListener('mouseleave', function () { startTimer(); });
+    }
+
+    startTimer();
+  })();
 })();
+

@@ -1,4 +1,107 @@
 
+<?php
+$testimonials = [];
+try {
+    $testimonialModelFile = __DIR__ . '/../../cms/models/Testimonial.php';
+    if (file_exists($testimonialModelFile)) {
+        require_once $testimonialModelFile;
+        $testimonialModel = new Testimonial();
+        $testimonials = $testimonialModel->approved(5);
+    }
+} catch (Throwable $e) {
+    $testimonials = [];
+}
+?>
+
+<!-- ================= TESTIMONIALS ================= -->
+<section class="testimonials-section" id="testimonials">
+  <div class="container">
+    <div class="section-head reveal" style="margin-bottom:30px">
+      <p class="eyebrow">What Our Guests Say</p>
+      <h2 class="section-title">Stories from <span class="accent">Real Travelers</span></h2>
+      <p class="section-sub">Read authentic reviews and experiences from travelers who explored Java with us.</p>
+    </div>
+    
+    <div class="testimonial-slider-wrap reveal">
+      <button class="testi-nav prev" id="testiPrev" aria-label="Testimonial Sebelumnya">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+
+      <div class="testimonial-slider" id="testiSlider">
+        <div class="testi-track" id="testiTrack">
+          <?php if (!empty($testimonials)): ?>
+            <?php foreach ($testimonials as $item): ?>
+              <div class="testi-card">
+                <div class="testi-stars">
+                  <?php 
+                    $rating = (int)($item['rating'] ?? 5);
+                    for ($i = 1; $i <= 5; $i++): 
+                  ?>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="<?= $i <= $rating ? '#f2a33c' : 'none' ?>" stroke="<?= $i <= $rating ? '#f2a33c' : '#cbd5e1' ?>" stroke-width="1.5"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>
+                  <?php endfor; ?>
+                </div>
+                <blockquote class="testi-quote">"<?= htmlspecialchars($item['review_text'] ?? '') ?>"</blockquote>
+                <div class="testi-user">
+                  <?php if (!empty($item['customer_photo'])): ?>
+                    <img src="<?= htmlspecialchars($item['customer_photo']) ?>" alt="<?= htmlspecialchars($item['customer_name'] ?? 'Guest') ?>" class="testi-avatar">
+                  <?php else: ?>
+                    <div class="testi-avatar-placeholder"><?= strtoupper(substr($item['customer_name'] ?? 'G', 0, 1)) ?></div>
+                  <?php endif; ?>
+                  <div class="testi-user-info">
+                    <h4 class="testi-name"><?= htmlspecialchars($item['customer_name'] ?? 'Guest') ?></h4>
+                    <p class="testi-role">Verified Traveler</p>
+                  </div>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          <?php else: ?>
+            <div class="testi-card">
+              <div class="testi-stars">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f2a33c" stroke="#f2a33c"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f2a33c" stroke="#f2a33c"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f2a33c" stroke="#f2a33c"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f2a33c" stroke="#f2a33c"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f2a33c" stroke="#f2a33c"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>
+              </div>
+              <blockquote class="testi-quote">"Exploring Bromo and Ijen with Explores Java was an unforgettable experience. Everything was well-organized, friendly guides, and stunning views!"</blockquote>
+              <div class="testi-user">
+                <div class="testi-avatar-placeholder">S</div>
+                <div class="testi-user-info">
+                  <h4 class="testi-name">Sarah Jenkins</h4>
+                  <p class="testi-role">Traveler from Australia</p>
+                </div>
+              </div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f2a33c" stroke="#f2a33c"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f2a33c" stroke="#f2a33c"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f2a33c" stroke="#f2a33c"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f2a33c" stroke="#f2a33c"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f2a33c" stroke="#f2a33c"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9Z"/></svg>
+              </div>
+              <blockquote class="testi-quote">"Sangat berkesan liburan ke Yogyakarta dan Bromo. Pelayanannya sangat baik, mobil bersih, dan driver ramah sekali."</blockquote>
+              <div class="testi-user">
+                <div class="testi-avatar-placeholder">B</div>
+                <div class="testi-user-info">
+                  <h4 class="testi-name">Budi Santoso</h4>
+                  <p class="testi-role">Wisatawan Domestik</p>
+                </div>
+              </div>
+            </div>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <button class="testi-nav next" id="testiNext" aria-label="Testimonial Selanjutnya">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+
+      <div class="testi-dots" id="testiDots"></div>
+    </div>
+  </div>
+</section>
+
 <!-- ================= FOOTER ================= -->
 <footer id="contact">
   <div class="container">
