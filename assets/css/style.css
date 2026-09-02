@@ -474,3 +474,85 @@ footer{background:var(--cream);padding:70px 0 26px}
 
 
 
+/* ========== ABOUT US PAGE ========== */
+
+/* Hero */
+.about-hero{position:relative;padding:130px 0 90px;overflow:hidden;background-color:#273d2e;background-image:url('../images/hills.jpg');background-position:center 40%;background-size:cover;background-repeat:no-repeat}
+.about-hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(11,58,34,.92) 0%,rgba(11,58,34,.70) 55%,rgba(11,58,34,.40) 100%)}
+.about-hero-content{position:relative;z-index:1;max-width:680px}
+.about-hero-content h1{font-family:var(--serif);font-size:clamp(36px,5vw,58px);font-weight:600;line-height:1.12;color:#fff;margin:14px 0 18px}
+.about-accent{color:var(--orange)}
+.about-hero-lead{font-size:15.5px;color:rgba(255,255,255,.82);max-width:500px;line-height:1.7;margin-bottom:30px}
+.about-breadcrumb{display:flex;align-items:center;gap:6px;font-size:12.5px;color:rgba(255,255,255,.55)}
+.about-breadcrumb a{color:rgba(255,255,255,.55);transition:.2s}
+.about-breadcrumb a:hover{color:#fff}
+.about-breadcrumb svg{color:rgba(255,255,255,.4)}
+.about-breadcrumb span{color:rgba(255,255,255,.85);font-weight:600}
+
+/* Our Story */
+.about-story{background:var(--cream)}
+.about-story-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.story-img-wrap{position:relative;border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+.story-img-main{width:100%;height:400px;object-fit:cover;display:block}
+.story-img-badge{position:absolute;bottom:20px;left:20px;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-radius:12px;padding:12px 18px;display:flex;flex-direction:column;align-items:center;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+.badge-num{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--green-700);line-height:1}
+.badge-text{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.story-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.stat-item{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 12px;text-align:center}
+.stat-item strong{display:block;font-family:var(--serif);font-size:24px;font-weight:700;color:var(--green-700)}
+.stat-item span{font-size:11.5px;color:var(--muted);font-weight:500}
+.about-story-text p{color:#4c5650;font-size:14.5px;line-height:1.78}
+
+/* Why Choose Cards */
+.about-why{padding:92px 0;background:linear-gradient(180deg,#f0f4f0 0%,var(--cream) 100%)}
+.why-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:48px}
+.why-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px 26px;transition:.25s;position:relative;overflow:hidden}
+.why-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green-700),var(--green-600));transform:scaleX(0);transform-origin:left;transition:.3s}
+.why-card:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+.why-card:hover::before{transform:scaleX(1)}
+.why-card-icon{width:52px;height:52px;border-radius:14px;background:var(--green-100);display:grid;place-items:center;margin-bottom:18px}
+.why-card-icon svg{width:26px;height:26px;color:var(--green-700)}
+.why-card h3{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px}
+.why-card p{font-size:13.5px;color:var(--muted);line-height:1.65}
+
+/* Our Services */
+.about-services{background:var(--cream)}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.service-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;transition:.25s;display:flex;flex-direction:column;gap:12px}
+.service-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.service-icon-wrap{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--green-700),var(--green-600));display:grid;place-items:center;flex-shrink:0}
+.service-icon-wrap svg{width:22px;height:22px;color:#fff}
+.service-card h3{font-size:15.5px;font-weight:700;color:var(--ink)}
+.service-card>p{font-size:13.5px;color:var(--muted);line-height:1.65}
+.service-list{margin-top:6px;display:flex;flex-direction:column;gap:7px;padding:0}
+.service-list li{font-size:12.5px;color:#49544d;padding-left:16px;position:relative}
+.service-list li::before{content:'✓';position:absolute;left:0;color:var(--green-700);font-weight:700;font-size:11px}
+
+/* Meet Our Team */
+.about-team{padding:92px 0;background:linear-gradient(180deg,var(--cream) 0%,#f0f4f0 100%)}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.team-card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:.25s;display:flex;flex-direction:column}
+.team-card:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+.team-avatar{height:130px;display:flex;align-items:center;justify-content:center}
+.team-avatar span{font-family:var(--serif);font-size:40px;font-weight:700;color:#fff;opacity:.9}
+.team-info{padding:20px 22px 24px;flex:1;display:flex;flex-direction:column}
+.team-info h3{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.team-role{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green-700);margin-bottom:10px}
+.team-bio{font-size:13px;color:var(--muted);line-height:1.65;flex:1}
+.team-socials{display:flex;gap:8px;margin-top:16px}
+.team-socials a{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;color:#4a544e;transition:.2s}
+.team-socials a svg{width:14px;height:14px}
+.team-socials a:hover{color:var(--green-700);border-color:var(--green-700)}
+
+/* About Responsive */
+@media(max-width:1020px){
+  .about-story-grid{grid-template-columns:1fr;gap:48px}
+  .why-cards{grid-template-columns:repeat(2,1fr)}
+  .services-grid{grid-template-columns:repeat(2,1fr)}
+  .team-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  .why-cards,.services-grid,.team-grid{grid-template-columns:1fr}
+  .story-stats{grid-template-columns:1fr 1fr 1fr}
+  .about-hero{padding:100px 0 70px}
+}

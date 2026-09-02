@@ -54,7 +54,7 @@
         </li>
         <li><a class="nav-link" href="/packages">Tour Packages</a></li>
         <li><a class="nav-link" href="/blog">Blog</a></li>
-        <li><a class="nav-link" href="/why">About Us</a></li>
+        <li><a class="nav-link" href="/about">About Us</a></li>
         <li><a class="nav-link" href="/contact">Contact</a></li>
       </ul>
     </nav>

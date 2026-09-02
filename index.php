@@ -53,6 +53,9 @@ switch ($page) {
     case 'detail':
         include __DIR__ . '/views/package.detail.php';
         break;
+    case 'about':
+        include __DIR__ . '/views/about.php';
+        break;
     case 'admin':
         header('Location: cms');
         exit;
