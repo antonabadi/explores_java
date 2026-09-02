@@ -59,6 +59,14 @@ class AdminController extends Controller
             $this->error('Username already taken', 422);
         }
 
+        if (isset($input['role'])) {
+            if (!$this->model->isValidRole($input['role'])) {
+                $this->error('Invalid role', 422);
+            }
+        } else {
+            $input['role'] = 'admin-content';
+        }
+
         if ($this->model->findByEmail($input['email'])) {
             $this->error('Email already registered', 422);
         }
@@ -82,6 +90,10 @@ class AdminController extends Controller
 
         if (isset($input['password']) && $input['password'] !== '' && strlen($input['password']) < 8) {
             $this->error('Password must be at least 8 characters', 422);
+        }
+
+        if (isset($input['role']) && !$this->model->isValidRole($input['role'])) {
+            $this->error('Invalid role', 422);
         }
 
         $this->model->update($id, $input);
@@ -120,6 +132,7 @@ class AdminController extends Controller
         }
         $_SESSION['admin_id'] = $admin['id'];
         $_SESSION['admin_username'] = $admin['username'];
+        $_SESSION['admin_role'] = $admin['role'] ?? 'admin-content';
 
         $this->success($admin, 'Login successful');
     }

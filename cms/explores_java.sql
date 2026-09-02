@@ -35,6 +35,7 @@ CREATE TABLE `admins` (
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
   `fullname` varchar(100) NOT NULL,
+  `role` enum('superadmin','admin','admin-content','admin-tour','admin-booking','moderator') NOT NULL DEFAULT 'admin-content',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

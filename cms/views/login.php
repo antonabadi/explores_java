@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $pdo = db();
         $stmt = $pdo->prepare(
-            'SELECT id, username, password FROM admins WHERE username = ? OR email = ? LIMIT 1'
+            'SELECT id, username, role, password FROM admins WHERE username = ? OR email = ? LIMIT 1'
         );
         $stmt->execute([$username, $username]);
         $admin = $stmt->fetch();
@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($admin && password_verify($password, $admin['password'])) {
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_username'] = $admin['username'];
+            $_SESSION['admin_role'] = $admin['role'] ?? 'admin-content';
             redirect('dashboard.php?page=dashboard');
         }
 

@@ -1,5 +1,6 @@
 <?php
 $adminName = $_SESSION['admin_username'] ?? 'Admin';
+$adminRole = $_SESSION['admin_role'] ?? 'admin-content';
 $initial = strtoupper(substr($adminName, 0, 1));
 ?>
 <aside class="sidebar">
@@ -65,6 +66,14 @@ $initial = strtoupper(substr($adminName, 0, 1));
                 <span>Blogs</span>
             </a>
         </li>
+        <li class="nav-item <?= ($activePage ?? '') === 'admins' ? 'active' : '' ?>">
+            <a href="dashboard.php?page=admins">
+                <span class="nav-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </span>
+                <span>Admins</span>
+            </a>
+        </li>
     </ul>
 
     <div class="sidebar-footer">
@@ -72,7 +81,7 @@ $initial = strtoupper(substr($adminName, 0, 1));
             <div class="user-avatar"><?= e($initial) ?></div>
             <div class="user-details">
                 <span class="user-name"><?= e($adminName) ?></span>
-                <span class="user-role">Administrator</span>
+                <span class="user-role"><?= e(ucwords(str_replace('-', ' ', $adminRole))) ?></span>
             </div>
         </div>
 

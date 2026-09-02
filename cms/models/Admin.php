@@ -6,12 +6,27 @@ class Admin extends Model
 {
     protected string $table = 'admins';
 
+    public const ROLES = [
+        'superadmin',
+        'admin',
+        'admin-content',
+        'admin-tour',
+        'admin-booking',
+        'moderator',
+    ];
+
     protected array $fillable = [
         'username',
         'email',
         'password',
         'fullname',
+        'role',
     ];
+
+    public function isValidRole(string $role): bool
+    {
+        return in_array($role, self::ROLES, true);
+    }
 
     public function findByUsername(string $username): array|false
     {
