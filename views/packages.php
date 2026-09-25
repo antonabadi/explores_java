@@ -16,6 +16,7 @@
 </section>
 
 <!-- ================= SEARCH BAR ================= -->
+<!--
 <div class="search-wrap">
   <form class="search-bar" id="searchForm">
     <div class="search-field grow">
@@ -39,6 +40,7 @@
     <button class="btn btn-primary" type="submit">Search Now</button>
   </form>
 </div>
+-->
 
 <!-- ================= DESTINATIONS ================= -->
 <section class="section" id="destinations">

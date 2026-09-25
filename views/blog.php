@@ -91,6 +91,7 @@ if (empty($blogPosts)) {
 </section>
 
 <!-- ================= SEARCH BAR ================= -->
+<!--
 <div class="search-wrap">
   <form class="search-bar" id="searchForm" action="index.php" method="GET">
     <input type="hidden" name="page" value="packages">
@@ -115,6 +116,7 @@ if (empty($blogPosts)) {
     <button class="btn btn-primary" type="submit">Search Now</button>
   </form>
 </div>
+-->
 
 <!-- ================= BLOG ================= -->
 <section class="section" id="blog" style="padding-top:0">
