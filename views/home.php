@@ -124,7 +124,7 @@ try {
       <p class="eyebrow">Why travel with us?</p>
       <h2>Local Expertise,<br>Unforgettable Journeys</h2>
       <p>We are a local team passionate about showcasing the real Java through authentic experiences and responsible travel.</p>
-      <a class="btn btn-primary" href="#cta">Learn More About Us</a>
+      <a class="btn btn-primary" href="/about">Learn More About Us</a>
     </div>
     <div class="why-features reveal">
       <div class="feature">
@@ -226,7 +226,7 @@ try {
         </article>
       <?php endif; ?>
     </div>
-    <div class="center-cta"><a class="btn btn-primary" href="?page=packages">View All Tours</a></div>
+    <div class="center-cta"><a class="btn btn-primary" href="/packages">View All Tours</a></div>
   </div>
 </section>
 
@@ -239,7 +239,7 @@ try {
         <h2 class="section-title">From Our <span class="accent">Blog</span></h2>
         <p class="section-sub">Inspiration, travel tips, and stories from our adventures across Java.</p>
       </div>
-      <a class="btn btn-outline" href="#">Visit Our Blog</a>
+      <a class="btn btn-outline" href="/blog">Visit Our Blog</a>
     </div>
     <div class="blog-grid">
       <article class="blog-card reveal">
@@ -280,7 +280,7 @@ try {
     <span class="cta-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg></span>
     <h2>Ready for Your Next Adventure?</h2>
     <p>Let us help you plan a journey you'll never forget.</p>
-    <a class="btn btn-light" href="#contact">Plan Your Trip Now</a>
+    <a class="btn btn-light" href="/contact">Plan Your Trip Now</a>
   </div>
 </section>
 
