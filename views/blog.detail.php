@@ -126,7 +126,7 @@ $ogImage = !empty($post['og_image']) ? $post['og_image'] : ($post['featured_imag
 <section class="hero" style="padding: 100px 0 60px;">
   <div class="container hero-content">
     <p class="eyebrow"><?= htmlspecialchars($post['category_name'] ?? 'Travel Stories') ?></p>
-    <h1 style="font-size: 2.5rem; max-width: 850px; margin: 0 auto 20px;"><?= htmlspecialchars($post['title']) ?></h1>
+    <h1 class="blog-detail-hero-title" style="font-size: 2.5rem; max-width: 850px; margin: 0 auto 20px;"><?= htmlspecialchars($post['title']) ?></h1>
     <p class="blog-meta" style="justify-content: center; font-size: 0.95rem; opacity: 0.9;">
       <span>By <?= htmlspecialchars($post['author_name'] ?? 'Explores Java Team') ?></span>
       <span class="dot" style="display:inline-block; width:4px; height:4px; background:currentColor; border-radius:50%; margin:0 8px;"></span>
@@ -140,10 +140,30 @@ $ogImage = !empty($post['og_image']) ? $post['og_image'] : ($post['featured_imag
 <!-- ================= BLOG CONTENT SECTION ================= -->
 <section class="section" style="padding-top: 20px;">
   <div class="container" style="max-width: 1100px;">
-    <div style="display: grid; grid-template-columns: 1fr 320px; gap: 40px; align-items: start;">
+    <style>
+      .blog-detail-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 40px;
+        align-items: start;
+      }
+      @media (max-width: 992px) {
+        .blog-detail-layout {
+          grid-template-columns: 1fr;
+          gap: 30px;
+        }
+        .blog-detail-hero-title {
+          font-size: 1.8rem !important;
+        }
+        .blog-detail-article {
+          padding: 20px !important;
+        }
+      }
+    </style>
+    <div class="blog-detail-layout">
       
       <!-- Main Post Content -->
-      <article class="glass-card" style="padding: 30px; border-radius: 16px; background: rgba(255,255,255,0.03);">
+      <article class="glass-card blog-detail-article" style="padding: 30px; border-radius: 16px; background: rgba(255,255,255,0.03);">
         <?php if (!empty($post['featured_image'])): ?>
           <div style="margin-bottom: 30px; border-radius: 12px; overflow: hidden; max-height: 450px;">
             <img src="<?= htmlspecialchars($post['featured_image']) ?>" alt="<?= htmlspecialchars($post['title']) ?>" style="width: 100%; height: 100%; object-fit: cover; display: block;">
