@@ -241,6 +241,25 @@ try {
                 $action = fn() => $controller->destroy((int) $param1);
             }
             break;
+
+        // ---------------- Assets ----------------
+        case 'assets':
+            require_once __DIR__ . '/controllers/AssetController.php';
+            $controller = new AssetController();
+            if ($param1 === null && $method === 'GET') {
+                $action = fn() => $controller->index();
+                $public = true;
+            } elseif ($param1 && $method === 'GET') {
+                $action = fn() => $controller->show((int) $param1);
+                $public = true;
+            } elseif ($param1 === null && $method === 'POST') {
+                $action = fn() => $controller->store();
+            } elseif ($param1 && in_array($method, ['PUT', 'PATCH'], true)) {
+                $action = fn() => $controller->update((int) $param1);
+            } elseif ($param1 && $method === 'DELETE') {
+                $action = fn() => $controller->destroy((int) $param1);
+            }
+            break;
     }
 
     if ($action === null) {

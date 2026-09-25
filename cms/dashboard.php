@@ -113,6 +113,8 @@ $views = [
     'tours'         => __DIR__ . '/views/tours/index.php',
     'bookings'      => __DIR__ . '/views/bookings/index.php',
     'testimonials'  => __DIR__ . '/views/testimonials/index.php',
+    'assets'        => __DIR__ . '/views/assets/index.php',
+    'assets_add'    => __DIR__ . '/views/assets/add.php',
     'blogs'         => __DIR__ . '/views/blogs/index.php',
     'admins'        => __DIR__ . '/views/admins/index.php',
     'login'         => __DIR__ . '/views/login.php',
@@ -140,6 +142,8 @@ $pageTitles = [
     'tours'        => 'Tours',
     'bookings'     => 'Bookings',
     'testimonials' => 'Testimonials',
+    'assets'       => 'Manajemen Asset',
+    'assets_add'   => 'Tambah Asset Gambar',
     'blogs'        => 'Blog Posts',
     'admins'       => 'Admin Accounts',
 ];
