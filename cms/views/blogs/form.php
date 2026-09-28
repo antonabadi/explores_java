@@ -311,7 +311,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="form-group full-width" style="grid-column: 1 / -1;">
                     <label for="blog_content">Content *</label>
-                    <textarea id="blog_content" name="content" class="form-control" rows="10" required><?= e($post['content'] ?? '') ?></textarea>
+                    <textarea id="blog_content" name="content" class="form-control" rows="10"><?= e($post['content'] ?? '') ?></textarea>
                 </div>
             </div>
 
@@ -322,3 +322,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </main>
+
+<style>
+.ck-editor__editable_inline {
+    min-height: 320px;
+    background-color: var(--bg-tertiary, #1e232d) !important;
+    color: var(--text-primary, #ffffff) !important;
+}
+.ck.ck-editor__main>.ck-editor__editable {
+    background: var(--bg-tertiary, #1e232d) !important;
+    border-color: var(--border-color, rgba(255,255,255,0.1)) !important;
+}
+.ck.ck-toolbar {
+    background: var(--bg-secondary, #161920) !important;
+    border-color: var(--border-color, rgba(255,255,255,0.1)) !important;
+}
+.ck.ck-toolbar .ck-button, .ck.ck-toolbar .ck-dropdown__button {
+    color: var(--text-primary, #e0e0e0) !important;
+}
+.ck.ck-toolbar .ck-button:hover, .ck.ck-toolbar .ck-dropdown__button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+.ck.ck-toolbar .ck-button.ck-on {
+    background: var(--color-accent, #4f46e5) !important;
+    color: #fff !important;
+}
+.ck.ck-list {
+    background: var(--bg-secondary, #161920) !important;
+}
+.ck.ck-list__item .ck-button {
+    color: var(--text-primary, #e0e0e0) !important;
+}
+.ck.ck-list__item .ck-button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+.ck.ck-reset_all, .ck.ck-reset_all * {
+    color: var(--text-primary, #e0e0e0) !important;
+}
+</style>
+
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const contentTextarea = document.querySelector('#blog_content');
+    if (contentTextarea) {
+        ClassicEditor
+            .create(contentTextarea, {
+                toolbar: [
+                    'heading', '|',
+                    'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', '|',
+                    'insertTable', 'undo', 'redo'
+                ]
+            })
+            .then(editor => {
+                const form = contentTextarea.closest('form');
+                if (form) {
+                    form.addEventListener('submit', () => {
+                        editor.updateSourceElement();
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('CKEditor initialization error:', error);
+            });
+    }
+});
+</script>
