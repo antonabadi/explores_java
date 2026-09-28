@@ -116,6 +116,8 @@ $views = [
     'assets'        => __DIR__ . '/views/assets/index.php',
     'assets_add'    => __DIR__ . '/views/assets/add.php',
     'blogs'         => __DIR__ . '/views/blogs/index.php',
+    'blogs_add'     => __DIR__ . '/views/blogs/form.php',
+    'blogs_edit'    => __DIR__ . '/views/blogs/form.php',
     'admins'        => __DIR__ . '/views/admins/index.php',
     'login'         => __DIR__ . '/views/login.php',
 ];
@@ -145,6 +147,8 @@ $pageTitles = [
     'assets'       => 'Manajemen Asset',
     'assets_add'   => 'Tambah Asset Gambar',
     'blogs'        => 'Blog Posts',
+    'blogs_add'    => 'Add Blog Post',
+    'blogs_edit'   => 'Edit Blog Post',
     'admins'       => 'Admin Accounts',
 ];
 
