@@ -3,6 +3,7 @@
 // Load models dynamically if available
 $destinations = [];
 $tours = [];
+$latestPosts = [];
 
 try {
     if (file_exists(__DIR__ . '/../cms/models/Destination.php')) {
@@ -17,10 +18,51 @@ try {
         $searchResult = $tourModel->search([], 1, 4);
         $tours = $searchResult['data'] ?? [];
     }
+
+    if (file_exists(__DIR__ . '/../cms/models/BlogPost.php')) {
+        require_once __DIR__ . '/../cms/models/BlogPost.php';
+        $blogModel = new BlogPost();
+        $latestPosts = $blogModel->getPublished(4);
+    }
 } catch (Throwable $e) {
     // Fail-safe graceful fallback if database is not initialized
     $destinations = [];
     $tours = [];
+    $latestPosts = [];
+}
+
+// Fallback dummy data if no posts found in database
+if (empty($latestPosts)) {
+    $latestPosts = [
+        [
+            'title' => 'Best Time to Visit Mount Bromo and What to Expect',
+            'slug' => 'best-time-to-visit-mount-bromo-and-what-to-expect',
+            'featured_image' => 'assets/images/bromo.jpg',
+            'published_at' => '2024-05-10',
+            'category_name' => 'Tips',
+        ],
+        [
+            'title' => 'Complete Travel Guide to Yogyakarta',
+            'slug' => 'complete-travel-guide-to-yogyakarta',
+            'featured_image' => 'assets/images/temple.jpg',
+            'published_at' => '2024-05-05',
+            'category_name' => 'Guide',
+        ],
+        [
+            'title' => 'Hidden Waterfalls in Java You Must Visit',
+            'slug' => 'hidden-waterfalls-in-java-you-must-visit',
+            'featured_image' => 'assets/images/waterfall.jpg',
+            'published_at' => '2024-04-28',
+            'category_name' => 'Nature',
+        ],
+        [
+            'title' => 'Exploring the Tea Plantations of West Java',
+            'slug' => 'exploring-the-tea-plantations-of-west-java',
+            'featured_image' => 'assets/images/hills.jpg',
+            'published_at' => '2024-04-20',
+            'category_name' => 'Culture',
+        ],
+    ];
 }
 ?>
 
@@ -242,34 +284,30 @@ try {
       <a class="btn btn-outline" href="/blog">Visit Our Blog</a>
     </div>
     <div class="blog-grid">
-      <article class="blog-card reveal">
-        <div class="blog-media" style="background-image:url('assets/images/bromo.jpg')"></div>
-        <div class="blog-body">
-          <h3>Best Time to Visit Mount Bromo and What to Expect</h3>
-          <p class="blog-meta">May 10, 2024 <span class="dot"></span> Tips</p>
-        </div>
-      </article>
-      <article class="blog-card reveal">
-        <div class="blog-media" style="background-image:url('assets/images/temple.jpg')"></div>
-        <div class="blog-body">
-          <h3>Complete Travel Guide to Yogyakarta</h3>
-          <p class="blog-meta">May 5, 2024 <span class="dot"></span> Guide</p>
-        </div>
-      </article>
-      <article class="blog-card reveal">
-        <div class="blog-media" style="background-image:url('assets/images/waterfall.jpg')"></div>
-        <div class="blog-body">
-          <h3>Hidden Waterfalls in Java You Must Visit</h3>
-          <p class="blog-meta">Apr 28, 2024 <span class="dot"></span> Nature</p>
-        </div>
-      </article>
-      <article class="blog-card reveal">
-        <div class="blog-media" style="background-image:url('assets/images/hills.jpg')"></div>
-        <div class="blog-body">
-          <h3>Exploring the Tea Plantations of West Java</h3>
-          <p class="blog-meta">Apr 20, 2024 <span class="dot"></span> Culture</p>
-        </div>
-      </article>
+      <?php foreach ($latestPosts as $post): ?>
+        <?php
+          $bgImage = !empty($post['featured_image']) ? $post['featured_image'] : 'assets/images/bromo.jpg';
+          if (!str_starts_with($bgImage, 'http') && !str_starts_with($bgImage, '/') && !str_starts_with($bgImage, 'assets/')) {
+              $bgImage = 'assets/images/' . ltrim($bgImage, '/');
+          }
+          $postSlug = $post['slug'] ?? '';
+          $postLink = !empty($postSlug) ? '/blog-detail?slug=' . urlencode($postSlug) : '/blog';
+          $postDate = !empty($post['published_at']) ? date('M j, Y', strtotime($post['published_at'])) : '';
+          $categoryName = $post['category_name'] ?? 'Tips';
+        ?>
+        <article class="blog-card reveal">
+          <a href="<?= htmlspecialchars($postLink) ?>" class="blog-media" style="display:block; background-image:url('<?= htmlspecialchars($bgImage) ?>')" aria-label="<?= htmlspecialchars($post['title']) ?>"></a>
+          <div class="blog-body">
+            <h3><a href="<?= htmlspecialchars($postLink) ?>" style="color:inherit;text-decoration:none;"><?= htmlspecialchars($post['title']) ?></a></h3>
+            <p class="blog-meta">
+              <?php if (!empty($postDate)): ?>
+                <?= htmlspecialchars($postDate) ?> <span class="dot"></span>
+              <?php endif; ?>
+              <?= htmlspecialchars($categoryName) ?>
+            </p>
+          </div>
+        </article>
+      <?php endforeach; ?>
     </div>
   </div>
 </section>
