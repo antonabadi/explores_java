@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/core/Auth.php';
 require_once __DIR__ . '/controllers/DestinationController.php';
+require_once __DIR__ . '/controllers/DestinationAreaController.php';
+require_once __DIR__ . '/controllers/DestinationTagController.php';
 require_once __DIR__ . '/controllers/TourPackageController.php';
 require_once __DIR__ . '/controllers/BookingController.php';
 require_once __DIR__ . '/controllers/TourController.php';
@@ -98,6 +100,45 @@ try {
                 $public = true;
             } elseif ($param1 === 'slug' && $param2 && $method === 'GET') {
                 $action = fn() => $controller->showBySlug($param2);
+                $public = true;
+            } elseif ($param1 && $param2 === 'blog-suggestions' && $method === 'GET') {
+                $action = fn() => $controller->blogSuggestions((int) $param1);
+                $public = true;
+            } elseif ($param1 && $method === 'GET') {
+                $action = fn() => $controller->show((int) $param1);
+                $public = true;
+            } elseif ($param1 === null && $method === 'POST') {
+                $action = fn() => $controller->store();
+            } elseif ($param1 && in_array($method, ['PUT', 'PATCH'], true)) {
+                $action = fn() => $controller->update((int) $param1);
+            } elseif ($param1 && $method === 'DELETE') {
+                $action = fn() => $controller->destroy((int) $param1);
+            }
+            break;
+
+        // ---------------- Destination Areas ----------------
+        case 'destination-areas':
+            $controller = new DestinationAreaController();
+            if ($param1 === null && $method === 'GET') {
+                $action = fn() => $controller->index();
+                $public = true;
+            } elseif ($param1 && $method === 'GET') {
+                $action = fn() => $controller->show((int) $param1);
+                $public = true;
+            } elseif ($param1 === null && $method === 'POST') {
+                $action = fn() => $controller->store();
+            } elseif ($param1 && in_array($method, ['PUT', 'PATCH'], true)) {
+                $action = fn() => $controller->update((int) $param1);
+            } elseif ($param1 && $method === 'DELETE') {
+                $action = fn() => $controller->destroy((int) $param1);
+            }
+            break;
+
+        // ---------------- Destination Tags ----------------
+        case 'destination-tags':
+            $controller = new DestinationTagController();
+            if ($param1 === null && $method === 'GET') {
+                $action = fn() => $controller->index();
                 $public = true;
             } elseif ($param1 && $method === 'GET') {
                 $action = fn() => $controller->show((int) $param1);
