@@ -191,11 +191,10 @@ class Destination extends Model
 
         if (!empty($filters['tag'])) {
             $tags = is_array($filters['tag']) ? $filters['tag'] : explode(',', $filters['tag']);
-            $tags = array_map('trim', array_filter($tags));
+            $tags = array_values(array_map('trim', array_filter($tags)));
 
             if (!empty($tags)) {
-                // Subquery: destinasi yang memiliki SEMUA tag yang diminta (AND logic)
-                // Atau bisa pakai OR logic (ANY) — implementasi di sini menggunakan ANY
+                // Subquery / JOIN: destinasi yang memiliki tag yang diminta (ANY logic)
                 $join .= " JOIN destination_tag_map dtm ON dtm.destination_id = d.id
                            JOIN destination_tags dta ON dta.id = dtm.tag_id";
                 $placeholders = [];
@@ -209,30 +208,27 @@ class Destination extends Model
         }
 
         if (!empty($filters['keyword'])) {
-            $where[] = '(d.name LIKE :keyword OR d.description LIKE :keyword)';
-            $params['keyword'] = '%' . $filters['keyword'] . '%';
+            $where[] = '(d.name LIKE :keyword_name OR d.description LIKE :keyword_desc)';
+            $params['keyword_name'] = '%' . $filters['keyword'] . '%';
+            $params['keyword_desc'] = '%' . $filters['keyword'] . '%';
         }
 
         $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
         $page     = max(1, $page);
+        $perPage  = max(1, $perPage);
         $offset   = ($page - 1) * $perPage;
 
-        $sql = "SELECT DISTINCT d.*, COUNT(DISTINCT t.id) AS tour_count
+        $sql = "SELECT d.*, COUNT(DISTINCT t.id) AS tour_count
                 FROM {$this->table} d
                 LEFT JOIN tours t ON t.destination_id = d.id AND t.is_active = 1
                 {$join}
                 {$whereSql}
                 GROUP BY d.id
                 ORDER BY d.name ASC
-                LIMIT :limit OFFSET :offset";
+                LIMIT {$perPage} OFFSET {$offset}";
 
         $stmt = $this->db->prepare($sql);
-        foreach ($params as $key => $value) {
-            $stmt->bindValue(":{$key}", $value);
-        }
-        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt->execute($params);
         $data = $stmt->fetchAll();
 
         $countSql = "SELECT COUNT(DISTINCT d.id) AS total
@@ -241,7 +237,8 @@ class Destination extends Model
                      {$whereSql}";
         $countStmt = $this->db->prepare($countSql);
         $countStmt->execute($params);
-        $total = (int) $countStmt->fetch()['total'];
+        $countRow  = $countStmt->fetch();
+        $total     = (int) ($countRow['total'] ?? 0);
 
         return [
             'data'         => $data,

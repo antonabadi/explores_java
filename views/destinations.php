@@ -150,11 +150,12 @@ try {
     }
 } catch (Throwable $e) {
     // Fail-safe graceful fallback if database or tables are not initialized
-    $destinations      = [];
-    $allAreas          = [];
-    $allTags           = [];
-    $suggestedPosts    = [];
-    $totalDestinations = 0;
+    // disable temporarily
+    // $destinations      = [];
+    // $allAreas          = [];
+    // $allTags           = [];
+    // $suggestedPosts    = [];
+    // $totalDestinations = 0;
 }
 
 // 5. Fallback Dummy Data if Database is Empty
