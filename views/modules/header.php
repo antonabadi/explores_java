@@ -42,7 +42,7 @@
     <nav class="main-nav" id="mainNav" aria-label="Navigasi utama">
       <ul>
         <li><a class="nav-link active" href="/">Home</a></li>
-        <li class="has-drop">
+        <!--<li class="has-drop">
           <button class="nav-link drop-btn" id="dropBtn" aria-expanded="false">Destinations
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </button>
@@ -52,7 +52,8 @@
             <a href="/destinations">West Java</a>
             <a href="/destinations">Yogyakarta</a>
           </div>
-        </li>
+        </li>-->
+        <li><a class="nav-link" href="/destinations">Destinations</a></li>
         <li><a class="nav-link" href="/packages">Tour Packages</a></li>
         <li><a class="nav-link" href="/blog">Blog</a></li>
         <li><a class="nav-link" href="/about">About Us</a></li>
