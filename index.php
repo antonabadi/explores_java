@@ -48,10 +48,10 @@ switch ($page) {
         include __DIR__ . '/views/destinations.php';
         break;
     case 'packages':
-        // include __DIR__ . '/views/packages.php';
+        include __DIR__ . '/views/packages.php';
         break;
     case 'detail':
-        // include __DIR__ . '/views/package.detail.php';
+        include __DIR__ . '/views/package.detail.php';
         break;
     case 'about':
         include __DIR__ . '/views/about.php';

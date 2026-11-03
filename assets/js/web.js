@@ -16,6 +16,8 @@
   });
 
   /* Dropdown Destinations */
+  // now disabled
+  /*
   var dropBtn = document.getElementById('dropBtn'), dropMenu = document.getElementById('dropMenu');
   dropBtn.addEventListener('click', function (e) {
     e.stopPropagation();
@@ -24,7 +26,7 @@
   });
   document.addEventListener('click', function (e) {
     if (!e.target.closest('.has-drop')) { dropMenu.classList.remove('show'); dropBtn.setAttribute('aria-expanded', 'false'); }
-  });
+  });*/
 
   /* Navigasi aktif */
   document.querySelectorAll('.main-nav .nav-link').forEach(function (link) {
