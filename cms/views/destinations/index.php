@@ -141,7 +141,7 @@ if ($destinations) {
         $destMeta[$row['destination_id']]['areas'][] = $row['name'];
     }
     foreach ($tagRows as $row) {
-        $destMeta[$row['destination_id']]['tags'][] = $row['name'];
+        $destMeta[$row['destination_id']]['tags'][] = ($row['icon'] ? $row['icon'] . ' ' : '') . $row['name'];
     }
 }
 
@@ -182,10 +182,27 @@ if (isset($_GET['edit'])) {
             <h1 class="page-title">Destinations</h1>
             <p class="date-indicator">Manage tour destinations, areas, and activity tags</p>
         </div>
-        <button type="button" class="btn-primary" data-modal-open="destinationModal"
-                <?= $editItem ? '' : 'data-reset-form="destinationForm"' ?>>
-            + Add Destination
-        </button>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <a href="dashboard.php?page=destination_areas" class="btn-secondary">
+                Manage Areas
+            </a>
+            <a href="dashboard.php?page=destination_tags" class="btn-secondary">
+                Manage Tags
+            </a>
+            <button type="button" class="btn-primary" data-modal-open="destinationModal"
+                    <?= $editItem ? '' : 'data-reset-form="destinationForm"' ?>>
+                + Add Destination
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="glass-card filter-bar">
+        <div class="tab-headers tab-headers-inline">
+            <a href="dashboard.php?page=destinations" class="tab-link active">Destinations</a>
+            <a href="dashboard.php?page=destination_areas" class="tab-link">Manage Areas</a>
+            <a href="dashboard.php?page=destination_tags" class="tab-link">Manage Tags</a>
+        </div>
     </div>
 
     <?php if ($flash): ?>
@@ -316,7 +333,10 @@ if (isset($_GET['edit'])) {
 
             <!-- ── Area Tags (wilayah) ── -->
             <div class="form-group">
-                <label>Area / Wilayah</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label style="margin-bottom: 0;">Area / Wilayah</label>
+                    <a href="dashboard.php?page=destination_areas" target="_blank" class="btn-link text-sm" title="Kelola area di tab baru">+ Manage Areas &nearr;</a>
+                </div>
                 <div class="checkbox-grid">
                     <?php foreach ($allAreas as $area): ?>
                         <label class="checkbox-label">
@@ -325,20 +345,29 @@ if (isset($_GET['edit'])) {
                             <?= e($area['name']) ?>
                         </label>
                     <?php endforeach; ?>
+                    <?php if (!$allAreas): ?>
+                        <p class="text-muted" style="margin:0">Belum ada area. <a href="dashboard.php?page=destination_areas" class="btn-link">+ Tambah Area</a></p>
+                    <?php endif; ?>
                 </div>
             </div>
 
             <!-- ── Activity Tags ── -->
             <div class="form-group">
-                <label>Activity Tags</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label style="margin-bottom: 0;">Activity Tags</label>
+                    <a href="dashboard.php?page=destination_tags" target="_blank" class="btn-link text-sm" title="Kelola tag di tab baru">+ Manage Tags &nearr;</a>
+                </div>
                 <div class="checkbox-grid">
                     <?php foreach ($allTags as $tag): ?>
                         <label class="checkbox-label">
                             <input type="checkbox" name="tag_ids[]" value="<?= (int) $tag['id'] ?>"
                                 <?= in_array($tag['id'], $editTagIds, false) ? 'checked' : '' ?>>
-                            <?= e($tag['name']) ?>
+                            <?= e(($tag['icon'] ? $tag['icon'] . ' ' : '') . $tag['name']) ?>
                         </label>
                     <?php endforeach; ?>
+                    <?php if (!$allTags): ?>
+                        <p class="text-muted" style="margin:0">Belum ada tag. <a href="dashboard.php?page=destination_tags" class="btn-link">+ Tambah Tag</a></p>
+                    <?php endif; ?>
                 </div>
             </div>
 

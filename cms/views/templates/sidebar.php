@@ -18,7 +18,7 @@ $initial = strtoupper(substr($adminName, 0, 1));
                 <span>Dashboard</span>
             </a>
         </li>
-        <li class="nav-item <?= ($activePage ?? '') === 'destinations' ? 'active' : '' ?>">
+        <li class="nav-item <?= in_array(($activePage ?? ''), ['destinations', 'destination_areas', 'destination_tags', 'areas', 'tags'], true) ? 'active' : '' ?>">
             <a href="dashboard.php?page=destinations">
                 <span class="nav-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>

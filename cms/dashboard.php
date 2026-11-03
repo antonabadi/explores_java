@@ -107,19 +107,23 @@ if (!in_array($page, $publicPages, true) && empty($_SESSION['admin_id'])) {
 }
 
 $views = [
-    'dashboard'     => __DIR__ . '/views/dashboard/index.php',
-    'destinations'  => __DIR__ . '/views/destinations/index.php',
-    'packages'      => __DIR__ . '/views/packages/index.php',
-    'tours'         => __DIR__ . '/views/tours/index.php',
-    'bookings'      => __DIR__ . '/views/bookings/index.php',
-    'testimonials'  => __DIR__ . '/views/testimonials/index.php',
-    'assets'        => __DIR__ . '/views/assets/index.php',
-    'assets_add'    => __DIR__ . '/views/assets/add.php',
-    'blogs'         => __DIR__ . '/views/blogs/index.php',
-    'blogs_add'     => __DIR__ . '/views/blogs/form.php',
-    'blogs_edit'    => __DIR__ . '/views/blogs/form.php',
-    'admins'        => __DIR__ . '/views/admins/index.php',
-    'login'         => __DIR__ . '/views/login.php',
+    'dashboard'         => __DIR__ . '/views/dashboard/index.php',
+    'destinations'      => __DIR__ . '/views/destinations/index.php',
+    'destination_areas' => __DIR__ . '/views/destinations/areas.php',
+    'destination_tags'  => __DIR__ . '/views/destinations/tags.php',
+    'areas'             => __DIR__ . '/views/destinations/areas.php',
+    'tags'              => __DIR__ . '/views/destinations/tags.php',
+    'packages'          => __DIR__ . '/views/packages/index.php',
+    'tours'             => __DIR__ . '/views/tours/index.php',
+    'bookings'          => __DIR__ . '/views/bookings/index.php',
+    'testimonials'      => __DIR__ . '/views/testimonials/index.php',
+    'assets'            => __DIR__ . '/views/assets/index.php',
+    'assets_add'        => __DIR__ . '/views/assets/add.php',
+    'blogs'             => __DIR__ . '/views/blogs/index.php',
+    'blogs_add'         => __DIR__ . '/views/blogs/form.php',
+    'blogs_edit'        => __DIR__ . '/views/blogs/form.php',
+    'admins'            => __DIR__ . '/views/admins/index.php',
+    'login'             => __DIR__ . '/views/login.php',
 ];
 
 if ($page === 'login') {
@@ -138,18 +142,22 @@ if (!isset($views[$page])) {
 }
 
 $pageTitles = [
-    'dashboard'    => 'Dashboard',
-    'destinations' => 'Destinations',
-    'packages'     => 'Tour Packages',
-    'tours'        => 'Tours',
-    'bookings'     => 'Bookings',
-    'testimonials' => 'Testimonials',
-    'assets'       => 'Manajemen Asset',
-    'assets_add'   => 'Tambah Asset Gambar',
-    'blogs'        => 'Blog Posts',
-    'blogs_add'    => 'Add Blog Post',
-    'blogs_edit'   => 'Edit Blog Post',
-    'admins'       => 'Admin Accounts',
+    'dashboard'         => 'Dashboard',
+    'destinations'      => 'Destinations',
+    'destination_areas' => 'Destination Areas',
+    'destination_tags'  => 'Destination Tags',
+    'areas'             => 'Destination Areas',
+    'tags'              => 'Destination Tags',
+    'packages'          => 'Tour Packages',
+    'tours'             => 'Tours',
+    'bookings'          => 'Bookings',
+    'testimonials'      => 'Testimonials',
+    'assets'            => 'Manajemen Asset',
+    'assets_add'        => 'Tambah Asset Gambar',
+    'blogs'             => 'Blog Posts',
+    'blogs_add'         => 'Add Blog Post',
+    'blogs_edit'        => 'Edit Blog Post',
+    'admins'            => 'Admin Accounts',
 ];
 
 $pageTitle = $pageTitles[$page] ?? 'Explores Java CMS';
